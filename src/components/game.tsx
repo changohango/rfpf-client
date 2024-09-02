@@ -36,7 +36,7 @@ export interface Property {
 
 function Game() {
     const [properties, setProperties] = useState()
-    const [gameKeys, setGameKeys] = useState<any>([]);
+    const [gameKeys, setGameKeys] = useState<any>();
     const [selectedGame, setSelectedGame] = useState();
 
     useEffect(() => {
@@ -51,9 +51,11 @@ function Game() {
 
     function handleNewGame() {
         const obj: any = {}
-        const gameNum = 0
-        if (gameKeys[0]) {
+        const gameNum;
+        if (gameKeys) {
             const gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
+        } else {
+            const gameNum = 0
         }
         obj["game" + gameNum] = true
         console.log(obj)
