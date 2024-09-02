@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
 import { Property } from "../game";
 import { db } from "../../firebase";
-import { getDatabase, ref, set, update } from "firebase/database";
+import Json from "../../assets/json/properties.json"
+import { getDatabase, onValue, ref, set, update } from "firebase/database";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -53,10 +54,22 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ properties }: any) {
+function Board({ gameId }: any) {    
+    const [properties, setProperties] = useState<any>(Json)
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
-    const [boardState, setBoardState] = useState(properties)
+    const [boardState, setBoardState] = useState(Json)
+    
+    useEffect(() => {
+        const query = ref(db, "games/" + gameId);
+        return onValue(query, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                console.log(data.properties)
+                setProperties(data.properties)
+            }
+        });
+    }, []);
 
     const handleClose = () => setShow(false);
 
@@ -68,13 +81,13 @@ function Board({ properties }: any) {
     }
 
     function handlePurchase() {
-        update(ref(db, "properties/" + currentModal + "/"), {
+        update(ref(db, "games/" + gameId + "/properties/" + currentModal + "/"), {
             owner: "Jonny"
         });        
         setBoardState({ ...boardState })
     }
 
-    return (
+    if (properties) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
                 <div className="pointer" key={boardSpace.id}>
@@ -82,9 +95,11 @@ function Board({ properties }: any) {
                 </div>
             ))}
             {show && <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
+                <>
+                {properties && <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
                     <Modal.Title>{properties[currentModal].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal} /></Modal.Title>
-                </Modal.Header>
+                </Modal.Header>}
+                </>
                 <Modal.Body>
                     <div className="d-flex">
                         <h4>Owned By: {properties[currentModal].owner}</h4>
@@ -106,6 +121,11 @@ function Board({ properties }: any) {
                     </Button>
                 </Modal.Footer>
             </Modal>}
+        </>
+    )
+    return (
+        <>
+        <h1>test2</h1>
         </>
     )
 }
