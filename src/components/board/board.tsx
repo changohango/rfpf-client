@@ -82,7 +82,6 @@ function Board() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <h1>{Json.hendersons.boardNum}</h1>
         </>
     )
 }
