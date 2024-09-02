@@ -51,7 +51,10 @@ function Game() {
 
     function handleNewGame() {
         const obj: any = {}
-        const gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
+        const gameNum = 0
+        if (gameKeys[0]) {
+            const gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
+        }
         obj["game" + gameNum] = true
         console.log(obj)
         update(ref(db, "gameKeys/"), obj);
