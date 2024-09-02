@@ -1,0 +1,270 @@
+#taxes {
+  width: 134px;
+  position: absolute;
+  top: 299px;
+  left: 44px;    
+}
+
+#rainyDay {
+  width: 164px;
+  position: absolute;
+  top: 231px;
+  left: 44px;
+}
+
+#jacobs {
+  height: 158px;
+  position: absolute;
+  top: 170px;
+  left: 111px;
+  clip-path: polygon(40% 0, 100% 60%, 60% 100%, 0 40%);
+}
+
+#phillips {
+  height: 158px;
+  position: absolute;
+  display: inline-block;
+  top: 108px;
+  left: 173px;
+  clip-path: polygon(40% 0, 100% 60%, 60% 100%, 0 40%);
+}
+
+#auction2 {
+  height: 165px;
+  position: absolute;
+  top: 39px;
+  left: 235.3px;
+  clip-path: polygon(0 42%, 57% -2%, 100% 81%, 75% 100%);
+}
+
+#opportunity3 {
+  height: 134px;
+  position: absolute;
+  top: 39px;
+  left: 306px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 54% 100%);
+}
+
+#scotts {
+  height: 134px;
+  position: absolute;
+  top: 39px;
+  left: 403px;
+}
+
+#lavenders {
+  height: 134px;
+  position: absolute;
+  top: 39px;
+  left: 490px;
+}
+
+#interest {
+  height: 134px;
+  position: absolute;
+  top: 39px;
+  left: 577px;
+  clip-path: polygon(0 0, 100% 0, 47% 100%, 0 100%);
+}
+
+#familyReunion {
+  height: 164px;
+  position: absolute;
+  top: 39px;
+  left: 622px;
+  clip-path: polygon(44% -1%, 100% 42%, 24% 100%, 0 82%);
+}
+
+#jeffreys {
+  height: 157px;
+  position: absolute;
+  top: 107px;
+  left: 651px;
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%); 
+}
+
+#millers {
+  height: 157px;
+  position: absolute;
+  top: 168px;
+  left: 712px;
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%);
+}
+
+#opportunity4 {
+  width: 163px;
+  position: absolute;
+  top: 230px;
+  left: 773.5px;
+  clip-path: polygon(58% 0, 100% 55%, 19% 100%, 0 76%);
+}
+
+#auction3 {
+  width: 133px;
+  position: absolute;
+  top: 298px;
+  left: 804px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 0 55%); 
+}
+
+#robbins {
+  width: 133px;
+  position: absolute;
+  top: 396px;
+  left: 804px;
+  -webkit-mask-image: url(../../assets/artwork/robbins.svg);
+  mask-image: url(../../assets/artwork/robbins.svg);
+  mask-size: 100%;
+  mask-repeat: no-repeat;    
+}
+
+#smiths {
+  width: 133px;
+  position: absolute;
+  top: 483px;
+  left: 804px;
+  -webkit-mask-image: url(../../assets/artwork/smiths.svg);
+  mask-image: url(../../assets/artwork/smiths.svg);
+  mask-size: 100%;
+  mask-repeat: no-repeat;    
+}
+
+#cropDamage {
+  width: 133px;
+  position: absolute;
+  top: 570px;
+  left: 804px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 46%);   
+}
+
+#opportunity5 {
+  width: 163px;
+  position: absolute;
+  top: 614px;
+  left: 774px;
+  clip-path: polygon(19% 0, 100% 44%, 57% 100%, 0 25%);
+}
+
+#watsons {
+  height: 157px;
+  position: absolute;
+  top: 643px;
+  left: 713px;
+  clip-path: polygon(40% 0, 100% 60%, 60% 100%, 0 40%);
+}
+
+#davis {
+  height: 157px;
+  position: absolute;
+  top: 704px;
+  left: 652px;
+  clip-path: polygon(40% 0, 100% 60%, 60% 100%, 0 40%);
+}
+
+#tractor {
+  height: 164px;
+  position: absolute;
+  top: 765px;
+  left: 621px;
+  clip-path: polygon(26% 0, 100% 57%, 44% 100%, 0 19%);
+}
+
+#start {
+  height: 134px;
+  position: absolute;
+  top: 795px;
+  left: 578px;
+  clip-path: polygon(0 0, 45% 0, 100% 100%, 0% 100%);
+}
+
+#landers {
+  height: 134px;
+  position: absolute;
+  top: 795px;
+  left: 491px;
+  -webkit-mask-image: url(../../assets/artwork/landers.svg);
+  mask-image: url(../../assets/artwork/landers.svg);
+  mask-size: 100%;
+  mask-repeat: no-repeat;    
+}
+
+#vernons {
+  height: 134px;
+  position: absolute;
+  top: 795px;
+  left: 404px;
+  -webkit-mask-image: url(../../assets/artwork/vernons.svg);
+  mask-image: url(../../assets/artwork/vernons.svg);
+  mask-size: 100%;
+  mask-repeat: no-repeat;    
+}
+
+#opportunity1 {
+  height: 134px;
+  position: absolute;
+  top: 795px;
+  left: 306px;
+  clip-path: polygon(54% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+#auction1 {
+  height: 164px;
+  position: absolute;
+  top: 765px;
+  left: 236px;
+  clip-path: polygon(76% 0, 100% 18%, 57% 100%, 0 58%);
+}
+
+#sharps {
+  height: 158px;
+  position: absolute;
+  top: 704px;
+  left: 175px;
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%); 
+}
+
+#parkers {
+  height: 158px;
+  position: absolute;
+  top: 643px;
+  left: 114px;
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%);
+}
+
+#juryDuty {
+  width: 166px;
+  position: absolute;
+  top: 613px;
+  left: 44px;
+  clip-path: polygon(0 43%, 81% 0, 100% 25%, 42% 100%);   
+}
+
+#opportunity2 {
+  width: 134px;
+  position: absolute;
+  top: 570px;
+  left: 44px;
+  clip-path: polygon(0 0, 100% 0, 100% 46%, 0 100%);
+}
+
+#hendersons {
+  width: 134px;
+  position: absolute;
+  top: 486px;
+  left: 44px;
+  -webkit-mask-image: url(../../assets/artwork/hendersons.svg);
+  mask-image: url(../../assets/artwork/hendersons.svg);
+  mask-size: 100%;
+  mask-repeat: no-repeat;    
+}
+
+#lewis {
+  width: 134px;
+  position: absolute;
+  top: 399px;
+  left: 44px;
+}
+
+.pointer {
+  pointer-events: auto;
+}
