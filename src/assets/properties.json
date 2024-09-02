@@ -1,4 +1,5 @@
 {
+  "properties": {
     "davis": {
       "boardNum": 30,
       "color": "#e09ba6",
@@ -304,3 +305,4 @@
       "upgradeStatus": "None"
     }
   }
+}

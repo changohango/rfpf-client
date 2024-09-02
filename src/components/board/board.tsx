@@ -1,7 +1,9 @@
 import { useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
-import Json from '../../assets/properties.json'
+import { Property } from "../game";
+import { db } from "../../firebase";
+import { getDatabase, ref, set, update } from "firebase/database";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -19,7 +21,7 @@ const boardSpaces: BoardSpace[] = [
     { id: 3, name: "opportunity1", isProperty: false },
     { id: 4, name: "auction1", isProperty: false },
     { id: 5, name: "sharps", isProperty: true },
-    { id: 6, name: "parkers", isProperty: true },   
+    { id: 6, name: "parkers", isProperty: true },
     { id: 7, name: "juryDuty", isProperty: false },
     { id: 8, name: "opportunity2", isProperty: false },
     { id: 9, name: "lewis", isProperty: true },
@@ -47,10 +49,14 @@ const boardSpaces: BoardSpace[] = [
     { id: 31, name: "tractor", isProperty: false },
 ]
 
-function Board() {
+export interface BoardProps {
+    [key: string]: Property;
+}
+
+function Board({ properties }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
-    const [boardState, setBoardState] = useState(Json)
+    const [boardState, setBoardState] = useState(properties)
 
     const handleClose = () => setShow(false);
 
@@ -62,8 +68,10 @@ function Board() {
     }
 
     function handlePurchase() {
-        boardState[currentModal as keyof typeof boardState].owner = "Jonny"
-        setBoardState({...boardState})
+        update(ref(db, "properties/" + currentModal + "/"), {
+            owner: "Jonny"
+        });        
+        setBoardState({ ...boardState })
     }
 
     return (
@@ -74,25 +82,25 @@ function Board() {
                 </div>
             ))}
             {show && <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton style={{ background: boardState[currentModal as keyof typeof boardState].color }}>
-                    <Modal.Title>{boardState[currentModal as keyof typeof boardState].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal}/></Modal.Title>
+                <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
+                    <Modal.Title>{properties[currentModal].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal} /></Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="d-flex">
-                        <h4>Owned By: {boardState[currentModal as keyof typeof boardState].owner}</h4>
-                        <h4 className="mx-auto">Price: {boardState[currentModal as keyof typeof boardState].price}</h4>
+                        <h4>Owned By: {properties[currentModal].owner}</h4>
+                        <h4 className="mx-auto">Price: {properties[currentModal].price}</h4>
                     </div>
                     <br></br>
-                    <p>Rent Due: {boardState[currentModal as keyof typeof boardState].rentDue}</p>
-                    <p>Plow: {boardState[currentModal as keyof typeof boardState].plow}</p>
-                    <p>Fertilize: {boardState[currentModal as keyof typeof boardState].fertilize}</p>
-                    <p>Plant: {boardState[currentModal as keyof typeof boardState].plant}</p>
-                    <p>Gather: {boardState[currentModal as keyof typeof boardState].gather}</p>
+                    <p>Rent Due: {properties[currentModal].rentDue}</p>
+                    <p>Plow: {properties[currentModal].plow}</p>
+                    <p>Fertilize: {properties[currentModal].fertilize}</p>
+                    <p>Plant: {properties[currentModal].plant}</p>
+                    <p>Gather: {properties[currentModal].gather}</p>
                 </Modal.Body>
                 <Modal.Footer>
-                    {boardState[currentModal as keyof typeof boardState].owner === "None" ?
-                        <Button variant="primary" onClick={handlePurchase}>Purchase</Button> : 
-                        <Button disabled variant="primary" onClick={handlePurchase}>Purchase</Button> }
+                    {properties[currentModal].owner === "None" ?
+                        <Button variant="primary" onClick={handlePurchase}>Purchase</Button> :
+                        <Button disabled variant="primary" onClick={handlePurchase}>Purchase</Button>}
                     <Button variant="secondary" onClick={handleClose}>
                         Close
                     </Button>
