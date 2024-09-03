@@ -1,9 +1,4 @@
 {
-    "players": {
-        "None": {
-            "playerId": 1
-        }
-    },
     "properties": {
         "davis": {
             "boardNum": 30,

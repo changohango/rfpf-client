@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import { onValue, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
-import JsonTemplate from "../assets/json/newGameTemplate.json"
+import newGameTemplate from "../assets/json/newGameTemplate.json"
 
 interface Player {
     id: number;
@@ -60,7 +60,11 @@ function Game({loggedInUser}: any) {
         obj["game" + gameNum] = true
         console.log(obj)
         update(ref(db, "gameKeys/"), obj);
-        update(ref(db, "games/game" + gameNum), JsonTemplate)
+        update(ref(db, "games/game" + gameNum), newGameTemplate).then(() => {
+            update(ref(db, "games/game" + gameNum + "/players"), {
+                
+            })
+        })
     }
 
 
