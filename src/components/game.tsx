@@ -34,7 +34,7 @@ export interface Property {
 
 
 
-function Game() {
+function Game({loggedInUser}: any) {
     const [properties, setProperties] = useState()
     const [gameKeys, setGameKeys] = useState<any>();
     const [selectedGame, setSelectedGame] = useState();
@@ -72,14 +72,14 @@ function Game() {
             <div className="container">
                 <div className="row">
                     <div className="col">
-                        {selectedGame && <Board gameId={selectedGame} />}
+                        {selectedGame && <Board gameId={selectedGame} currentUser={loggedInUser} />}
                     </div>
                     <div className="col">
                     </div>
                 </div>
             </div>
             {!selectedGame && <>
-                <h1>Select a Game</h1>
+                <h1>Welcome back, {loggedInUser.displayName}!</h1>
                 {gameKeys && gameKeys.map((game: any) => (
                     <Button key={game} onClick={() => setSelectedGame(game)}>{game}</Button>
                 ))}

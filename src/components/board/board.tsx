@@ -54,7 +54,7 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ gameId }: any) {    
+function Board({ gameId, currentUser }: any) {    
     const [properties, setProperties] = useState<any>(Json)
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
@@ -82,7 +82,7 @@ function Board({ gameId }: any) {
 
     function handlePurchase() {
         update(ref(db, "games/" + gameId + "/properties/" + currentModal + "/"), {
-            owner: "Jonny"
+            owner: currentUser.displayName
         });        
         setBoardState({ ...boardState })
     }

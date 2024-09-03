@@ -1,6 +1,6 @@
 import { auth, handleSignOut } from '../firebase';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 
 function Login() {
@@ -21,10 +21,8 @@ function Login() {
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/auth.user
                 const uid = user.uid;
-                console.log(uid);
                 setIsLoggedIn(true)
             } else {
-                console.log('not signed in')
                 setIsLoggedIn(false);
             }
         });
@@ -32,12 +30,11 @@ function Login() {
 
     function handleSignUp(e: any) {
         e.preventDefault()
-        const { email, password } = e.target.elements
-        console.log({ email: email.value, password: password.value })
+        const { name, email, password } = e.target.elements
         createUserWithEmailAndPassword(auth, email.value, password.value)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log(user)
+                updateProfile(user, { displayName: name.value })
             })
         setShowSignUp(false)
     }
@@ -53,7 +50,7 @@ function Login() {
             })
         setShowLogin(false)
     }
-    
+
     return (
         <>
             <h1 className="text-center my-3 title">Rich Farmer Poor Farmer</h1>
@@ -73,6 +70,10 @@ function Login() {
                 </>
                 <Modal.Body>
                     <Form onSubmit={handleSignUp}>
+                        <Form.Group className="mb-3" controlId="name">
+                            <Form.Label>Display Name</Form.Label>
+                            <Form.Control type="text" placeholder="Enter display name" />
+                        </Form.Group>
                         <Form.Group className="mb-3" controlId="email">
                             <Form.Label>Email address</Form.Label>
                             <Form.Control type="email" placeholder="Enter email" />
