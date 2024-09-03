@@ -51,11 +51,11 @@ function Game() {
 
     function handleNewGame() {
         const obj: any = {}
-        const gameNum;
+        var gameNum = 0
         if (gameKeys) {
-            const gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
+            gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
         } else {
-            const gameNum = 0
+            gameNum = 0
         }
         obj["game" + gameNum] = true
         console.log(obj)
