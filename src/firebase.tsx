@@ -3,7 +3,7 @@ import { getDatabase } from "firebase/database";
 import { getAuth, signOut } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB7JDF72qF3Gf3uUUPthhebY0t--8kOZKY",
+    apiKey: process.env.REACT_APP_FIREBASE_API,
     authDomain: "rfpf-server.firebaseapp.com",
     projectId: "rfpf-server",
     storageBucket: "rfpf-server.appspot.com",
