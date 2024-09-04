@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged, updateProfile, User } from 'firebase/auth';
 import { auth, handleSignOut } from './firebase';
 import { Button } from 'react-bootstrap';
+import React from 'react';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -24,10 +25,12 @@ function App() {
     });
   }, [])
   return (
-    <div className="App">
-      {isLoggedIn ? <Game loggedInUser={loggedInUser} /> : <Login/>}
-      {isLoggedIn && <Button className='my-5' onClick={handleSignOut}>Logout</Button>}
-    </div>
+    <React.StrictMode>
+      <div className="App">
+        {isLoggedIn ? <Game loggedInUser={loggedInUser} /> : <Login />}
+        {isLoggedIn && <Button className='my-5' onClick={handleSignOut}>Logout</Button>}
+      </div>
+    </React.StrictMode>
   );
 }
 

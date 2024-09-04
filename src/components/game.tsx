@@ -1,6 +1,6 @@
 import Board from "./board/board";
 import { db } from "../firebase";
-import { child, equalTo, get, onValue, orderByChild, query, ref, set, update } from "firebase/database";
+import { child, equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Modal } from "react-bootstrap";
 import newGameTemplate from "../assets/json/newGameTemplate.json"
@@ -36,40 +36,69 @@ export interface Property {
 
 function Game({ loggedInUser }: any) {
     const [foundFriend, setFoundFriend] = useState<any>();
-    const [properties, setProperties] = useState()
-    const [gameKeys, setGameKeys] = useState<any>();
+    const [foundFriendUid, setFoundFriendUid] = useState<string>("");
+
+    const [friendsList, setFriendsList] = useState<any[]>([]);
+    const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
+
+    const [gameKeys, setGameKeys] = useState<any[]>([]);
     const [selectedGame, setSelectedGame] = useState();
-
     const [showAddFriend, setShowAddFriend] = useState(false);
-
-    const handleShowAddFriend = () => setShowAddFriend(true);
-    const handleCloseAddFriend = () => setShowAddFriend(false);
+    const [showNewGame, setShowNewGame] = useState(false);
+    const [triggerReload, setTriggerReload] = useState(false);
 
     useEffect(() => {
-        const query = ref(db, "gameKeys");
-        return onValue(query, (snapshot) => {
-            const data = snapshot.val();
-            if (snapshot.exists()) {
-                setGameKeys(Object.keys(data))
-            }
-        });
-    }, []);
+        getGames()
+        setTriggerReload(false)
+    }, [triggerReload]);
 
-    function handleNewGame() {
+    function createNewGame(e: any) {
+        e.preventDefault()
+        const { gameName } = e.target.elements
         const obj: any = {}
-        var gameNum = 0
-        if (gameKeys) {
-            gameNum = Number(gameKeys[gameKeys.length - 1].slice(-1)) + 1
-        } else {
-            gameNum = 0
-        }
-        obj["game" + gameNum] = true
-        console.log(obj)
-        update(ref(db, "gameKeys/"), obj);
-        update(ref(db, "games/game" + gameNum), newGameTemplate).then(() => {
-            update(ref(db, "games/game" + gameNum + "/players"), {
+        obj[gameName.value] = true
 
-            })
+        const includeLoggedInUser: any = {}
+        includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName}
+        console.log(invitedFriends)
+
+        update(ref(db, "gameKeys/"), obj);
+        set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
+            for (var i in invitedFriends) {
+                update(ref(db, "games/" + gameName.value + "/invitedPlayers"), invitedFriends[i])
+            }
+        }).then(() => {
+            update(ref(db, "games/" + gameName.value + "/invitedPlayers"), includeLoggedInUser )
+        })
+        handleCloseNewGame()
+    }
+
+    async function getGames() {
+        const gamesRef = query(ref(db, "gameKeys"), ...[orderByKey()]);
+        const games: any = []
+        await get(gamesRef).then(async (snapshot) => {
+            if (snapshot.exists()) {
+                for (var i in Object.keys(snapshot.val())) {
+                    const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/invitedPlayers"), ...[orderByKey()]))
+                    if (Object.keys(data.val()).includes(loggedInUser.uid)) {
+                        games.push(Object.keys(snapshot.val())[i])
+                    }
+                }
+            }
+        })
+        console.log(games)
+        setGameKeys(games)
+    }
+
+    async function getFriendsList() {
+        get(ref(db, 'users/' + loggedInUser.uid + '/friends')).then((snapshot) => {
+            if (snapshot.val()) {
+                for (var i in Object.keys(snapshot.val())) {
+                    get(query(ref(db, 'users'), ...[orderByKey(), equalTo(Object.keys(snapshot.val())[i])])).then((friendSnapshot) => {
+                        setFriendsList(friendsList => [...friendsList, friendSnapshot.val()])
+                    })
+                }
+            }
         })
     }
 
@@ -79,16 +108,41 @@ function Game({ loggedInUser }: any) {
         const usersRef = query(ref(db, 'users'), ...[orderByChild("email"), equalTo(email.value)])
         const snapshot = await get(usersRef);
         const data = snapshot.val();
-        if (data)
+        if (data) {
             setFoundFriend(Object.values(data)[0])
-        else {
+            setFoundFriendUid(Object.keys(data)[0]);
+        } else {
             setFoundFriend(undefined)
+            setFoundFriendUid("");
         }
     }
 
+    function handleAddFriend() {
+        const obj: any = {}
+        obj[foundFriendUid] = true
+        update(ref(db, "users/" + loggedInUser.uid + "/friends"), obj)
+    }
 
-    const player1: Player = { id: 0, name: "Jonny", balance: 1000, ownedProperties: [] }
-    const player2: Player = { id: 0, name: "Micah", balance: 1000, ownedProperties: [] }
+    function handleNewGame() {
+        setShowNewGame(true)
+        getFriendsList()
+    }
+
+    function handleCloseNewGame() {
+        setShowNewGame(false)
+        setFriendsList([])
+        setInvitedFriends([])
+        setTriggerReload(true)
+    }
+
+    function inviteFriend(index: number) {
+        setInvitedFriends(invitedFriends => [...invitedFriends, friendsList[index]])
+        setFriendsList([
+            ...friendsList.slice(0, index),
+            ...friendsList.slice(index + 1)
+        ])
+    }
+
     return (
         <>
             {selectedGame && <Button onClick={() => setSelectedGame(undefined)}>Back</Button>}
@@ -102,18 +156,23 @@ function Game({ loggedInUser }: any) {
                 </div>
             </div>
             {!selectedGame && <>
-                <h1>Welcome back, {loggedInUser.displayName}!</h1>
+                <h3>Welcome back, {loggedInUser.displayName}!</h3>
+                <br />
+                <p>Your Games:</p>
                 {gameKeys && gameKeys.map((game: any) => (
                     <Button key={game} onClick={() => setSelectedGame(game)}>{game}</Button>
                 ))}
+                <hr />
                 <div className="mt-5">
                     <Button onClick={() => handleNewGame()}>New Game</Button>
                 </div>
+                <hr />
                 <div className="mt-5">
-                    <Button onClick={() => handleShowAddFriend()}>Add Friend</Button>
+                    <Button onClick={() => setShowAddFriend(true)}>Add Friend</Button>
                 </div>
+                <hr />
             </>}
-            <Modal show={showAddFriend} onHide={handleCloseAddFriend}>
+            <Modal show={showAddFriend} onHide={() => setShowAddFriend(false)}>
                 <>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Friend</Modal.Title>
@@ -130,8 +189,43 @@ function Game({ loggedInUser }: any) {
                         </Button>
                     </Form>
                     {foundFriend && <Card>
-                        <Card.Body>{foundFriend.email} / {foundFriend.name}</Card.Body>
+                        <Card.Body>{foundFriend.email} / {foundFriend.name}<Button className="mx-3" onClick={() => handleAddFriend()}>Add Friend</Button></Card.Body>
                     </Card>}
+                </Modal.Body>
+            </Modal>
+            <Modal show={showNewGame} onHide={() => handleCloseNewGame()}>
+                <>
+                    <Modal.Header closeButton>
+                        <Modal.Title>New Game</Modal.Title>
+                    </Modal.Header>
+                </>
+                <Modal.Body>
+                    <Form onSubmit={createNewGame}>
+                        <Form.Group className="mb-3" controlId="gameName">
+                            <Form.Label>Pick a name for your game:</Form.Label>
+                            <Form.Control type="text" placeholder="Enter game name" />
+                        </Form.Group>
+                        <hr />
+                        <h3>Invite Friends: </h3>
+                        <div>
+                            {friendsList.map((friend: any, i) => (
+                                <Card key={friend[Object.keys(friend)[0]].email}>
+                                    <Card.Body>{friend[Object.keys(friend)[0]].email} / {friend[Object.keys(friend)[0]].name}<Button className="mx-3" onClick={() => inviteFriend(i)}>Invite</Button></Card.Body>
+                                </Card>
+                            ))}
+                        </div>
+                        <hr />
+                        <h3>Invited Friends: </h3>
+                        <div>
+                            {invitedFriends.map((friend: any, i) => (
+                                <Card key={friend[Object.keys(friend)[0]].email}>
+                                    <Card.Body>{friend[Object.keys(friend)[0]].email} / {friend[Object.keys(friend)[0]].name}</Card.Body>
+                                </Card>
+                            ))}
+                        </div>
+                        <hr />
+                        {invitedFriends[0] ? <Button type="submit">Start Game</Button> : <Button variant="secondary" disabled>Start Game</Button>}
+                    </Form>
                 </Modal.Body>
             </Modal>
         </>

@@ -1,4 +1,7 @@
 {
+    "gameState" : {
+        "gameStarted": false
+    },
     "properties": {
         "davis": {
             "boardNum": 30,
