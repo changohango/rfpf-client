@@ -1,7 +1,8 @@
-import { auth, handleSignOut } from '../firebase';
+import { auth, db, handleSignOut } from '../firebase';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { ref, update } from 'firebase/database';
 
 function Login() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,8 +35,14 @@ function Login() {
         createUserWithEmailAndPassword(auth, email.value, password.value)
             .then((userCredential) => {
                 const user = userCredential.user;
-                updateProfile(user, { displayName: name.value })
+                updateProfile(user, { displayName: name.value }).then(() => {
+                    const obj: any = {}
+                    obj[user.uid] = { "name": user.displayName, "email": email.value, "activeGames": [], "friends": [] }
+                    console.log(obj)
+                    update(ref(db, "users/"), obj);
+                })
             })
+
         setShowSignUp(false)
     }
 

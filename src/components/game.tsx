@@ -1,8 +1,8 @@
 import Board from "./board/board";
 import { db } from "../firebase";
-import { onValue, ref, set, update } from "firebase/database";
+import { child, equalTo, get, onValue, orderByChild, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Card, Form, Modal } from "react-bootstrap";
 import newGameTemplate from "../assets/json/newGameTemplate.json"
 
 interface Player {
@@ -34,10 +34,16 @@ export interface Property {
 
 
 
-function Game({loggedInUser}: any) {
+function Game({ loggedInUser }: any) {
+    const [foundFriend, setFoundFriend] = useState<any>();
     const [properties, setProperties] = useState()
     const [gameKeys, setGameKeys] = useState<any>();
     const [selectedGame, setSelectedGame] = useState();
+
+    const [showAddFriend, setShowAddFriend] = useState(false);
+
+    const handleShowAddFriend = () => setShowAddFriend(true);
+    const handleCloseAddFriend = () => setShowAddFriend(false);
 
     useEffect(() => {
         const query = ref(db, "gameKeys");
@@ -62,9 +68,22 @@ function Game({loggedInUser}: any) {
         update(ref(db, "gameKeys/"), obj);
         update(ref(db, "games/game" + gameNum), newGameTemplate).then(() => {
             update(ref(db, "games/game" + gameNum + "/players"), {
-                
+
             })
         })
+    }
+
+    async function searchForFriend(e: any) {
+        e.preventDefault()
+        const { email } = e.target.elements
+        const usersRef = query(ref(db, 'users'), ...[orderByChild("email"), equalTo(email.value)])
+        const snapshot = await get(usersRef);
+        const data = snapshot.val();
+        if (data)
+            setFoundFriend(Object.values(data)[0])
+        else {
+            setFoundFriend(undefined)
+        }
     }
 
 
@@ -90,7 +109,31 @@ function Game({loggedInUser}: any) {
                 <div className="mt-5">
                     <Button onClick={() => handleNewGame()}>New Game</Button>
                 </div>
+                <div className="mt-5">
+                    <Button onClick={() => handleShowAddFriend()}>Add Friend</Button>
+                </div>
             </>}
+            <Modal show={showAddFriend} onHide={handleCloseAddFriend}>
+                <>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Friend</Modal.Title>
+                    </Modal.Header>
+                </>
+                <Modal.Body>
+                    <Form onSubmit={searchForFriend}>
+                        <Form.Group className="mb-3" controlId="email">
+                            <Form.Label>Friend's Email Address</Form.Label>
+                            <Form.Control type="email" placeholder="Enter email" />
+                        </Form.Group>
+                        <Button variant="primary" type="submit">
+                            Submit
+                        </Button>
+                    </Form>
+                    {foundFriend && <Card>
+                        <Card.Body>{foundFriend.email} / {foundFriend.name}</Card.Body>
+                    </Card>}
+                </Modal.Body>
+            </Modal>
         </>
     )
 }
