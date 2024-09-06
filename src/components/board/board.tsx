@@ -17,6 +17,7 @@ interface BoardSpace {
 }
 
 const test = "spin .3s linear 10, spinner1 ease-out forwards;"
+const lineDegrees = [23, 67, 112, 157, 203, 247, 294, 339]
 
 const boardSpaces: BoardSpace[] = [
     { id: 0, name: "start", isProperty: false },
@@ -74,6 +75,7 @@ function Board({ gameId, currentUser }: any) {
         "animation6": spinnerResult == 6,
         "animation7": spinnerResult == 7,
         "animation8": spinnerResult == 8,
+        "line": spinnerResult == 9
     })
 
     useEffect(() => {
@@ -92,6 +94,12 @@ function Board({ gameId, currentUser }: any) {
         return onValue(query, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
+                if (data == 9) {
+                    const randIndex = Math.floor(Math.random() * (7 - 0 + 1));
+                    const root = document.documentElement;
+                    console.log(lineDegrees[randIndex])
+                    root.style.setProperty('--lineNumber', `${lineDegrees[randIndex]}deg`)
+                }
                 setSpinnerResult(data);
             }
         });
@@ -117,6 +125,7 @@ function Board({ gameId, currentUser }: any) {
         min = Math.ceil(min);
         max = Math.floor(max);
         const result = Math.floor(Math.random() * (max - min + 1)) + min;
+
         if (result != spinnerResult) {
             update(ref(db, "games/" + gameId + "/gameState/"), { "spinnerResult": result });
         } else {
@@ -133,10 +142,10 @@ function Board({ gameId, currentUser }: any) {
             ))}
             <div id="spinnerBase">
                 <img src={boardArt('./spinnerBase.svg')} />
-                <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')}/>
+                <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')} />
                 <div className="text-center">
-                    <Button className="my-3" onClick={() => getRandomSpin(1, 8)}>Spin</Button>
-                    <Button onClick={() => setSpinnerResult(4)}>Reset</Button>
+                    <Button className="my-3" onClick={() => getRandomSpin(1, 9)}>Spin</Button>
+                    {spinnerResult == 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
             {show && <Modal show={show} onHide={handleClose}>

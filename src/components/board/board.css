@@ -1,3 +1,8 @@
+:root {
+  --lineNumber: 294deg
+}
+
+
 #taxes {
   width: 134px;
   position: absolute;
@@ -344,6 +349,13 @@
   height: 50px;
 }
 
+.line {
+  transform-origin: 50% 48.9%;
+  animation: spin .3s linear 2, lineAnim ease-out forwards;
+  animation-duration: 0.3s, 0.5s;
+  animation-delay: 0s, 0.6s;
+}
+
 @keyframes spin {
   100% {
     -webkit-transform: rotate(360deg);
@@ -395,5 +407,11 @@
 @keyframes spinner8 {
   100% {
     -webkit-transform: rotate(180deg);
+  }
+}
+
+@keyframes lineAnim {
+  100% {
+    -webkit-transform: rotate(var(--lineNumber));
   }
 }
