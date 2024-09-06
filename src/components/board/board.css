@@ -274,58 +274,58 @@
 
 .animation1 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner1 ease-out forwards;
+  animation: spin .3s linear 5, spinner1 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation2 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner2 ease-out forwards;
+  animation: spin .3s linear 5, spinner2 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation3 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner3 ease-out forwards;
+  animation: spin .3s linear 5, spinner3 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation4 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner4 ease-out forwards;
+  animation: spin .3s linear 5, spinner4 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation5 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner5 ease-out forwards;
+  animation: spin .3s linear 5, spinner5 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation6 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner6 ease-out forwards;
+  animation: spin .3s linear 5, spinner6 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation7 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner7 ease-out forwards;
+  animation: spin .3s linear 5, spinner7 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 .animation8 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 10, spinner8 ease-out forwards;
+  animation: spin .3s linear 5, spinner8 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 3s;
+  animation-delay: 0s, 1.5s;
 }
 
 #spinnerBase {
