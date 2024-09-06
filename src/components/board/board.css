@@ -2,7 +2,7 @@
   width: 134px;
   position: absolute;
   top: 299px;
-  left: 44px;    
+  left: 44px;
 }
 
 #rainyDay {
@@ -80,7 +80,7 @@
   position: absolute;
   top: 107px;
   left: 651px;
-  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%); 
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%);
 }
 
 #millers {
@@ -104,7 +104,7 @@
   position: absolute;
   top: 298px;
   left: 804px;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%, 0 55%); 
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 0 55%);
 }
 
 #robbins {
@@ -115,7 +115,7 @@
   -webkit-mask-image: url(../../assets/artwork/robbins.svg);
   mask-image: url(../../assets/artwork/robbins.svg);
   mask-size: 100%;
-  mask-repeat: no-repeat;    
+  mask-repeat: no-repeat;
 }
 
 #smiths {
@@ -126,7 +126,7 @@
   -webkit-mask-image: url(../../assets/artwork/smiths.svg);
   mask-image: url(../../assets/artwork/smiths.svg);
   mask-size: 100%;
-  mask-repeat: no-repeat;    
+  mask-repeat: no-repeat;
 }
 
 #cropDamage {
@@ -134,7 +134,7 @@
   position: absolute;
   top: 570px;
   left: 804px;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 46%);   
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 46%);
 }
 
 #opportunity5 {
@@ -185,7 +185,7 @@
   -webkit-mask-image: url(../../assets/artwork/landers.svg);
   mask-image: url(../../assets/artwork/landers.svg);
   mask-size: 100%;
-  mask-repeat: no-repeat;    
+  mask-repeat: no-repeat;
 }
 
 #vernons {
@@ -196,7 +196,7 @@
   -webkit-mask-image: url(../../assets/artwork/vernons.svg);
   mask-image: url(../../assets/artwork/vernons.svg);
   mask-size: 100%;
-  mask-repeat: no-repeat;    
+  mask-repeat: no-repeat;
 }
 
 #opportunity1 {
@@ -220,7 +220,7 @@
   position: absolute;
   top: 704px;
   left: 175px;
-  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%); 
+  clip-path: polygon(60% 0, 100% 40%, 40% 100%, 0 60%);
 }
 
 #parkers {
@@ -236,7 +236,7 @@
   position: absolute;
   top: 613px;
   left: 44px;
-  clip-path: polygon(0 43%, 81% 0, 100% 25%, 42% 100%);   
+  clip-path: polygon(0 43%, 81% 0, 100% 25%, 42% 100%);
 }
 
 #opportunity2 {
@@ -255,7 +255,7 @@
   -webkit-mask-image: url(../../assets/artwork/hendersons.svg);
   mask-image: url(../../assets/artwork/hendersons.svg);
   mask-size: 100%;
-  mask-repeat: no-repeat;    
+  mask-repeat: no-repeat;
 }
 
 #lewis {
@@ -274,58 +274,58 @@
 
 .animation1 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner1 ease-out forwards;
+  animation: spin .3s linear 2, spinner1 ease-out forwards;
   animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation-delay: 0s, 0.6s;
 }
 
 .animation2 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner2 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner2 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*3);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation3 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner3 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner3 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*7);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation4 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner4 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner4 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*5);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation5 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner5 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner5 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*1);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation6 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner6 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner6 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*6);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation7 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner7 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner7 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*2);
+  animation-delay: 0s, 0.6s;
 }
 
 .animation8 {
   transform-origin: 50% 48.9%;
-  animation: spin .3s linear 5, spinner8 ease-out forwards;
-  animation-duration: 0.3s, 0.5s;
-  animation-delay: 0s, 1.5s;
+  animation: spin .3s linear 2, spinner8 ease-out forwards;
+  animation-duration: 0.3s, calc(0.0625s*4);
+  animation-delay: 0s, 0.6s;
 }
 
 #spinnerBase {
@@ -345,30 +345,55 @@
 }
 
 @keyframes spin {
-  100% { -webkit-transform: rotate(360deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spinner1 {
-  100% { -webkit-transform: rotate(360deg); }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
+
 @keyframes spinner2 {
-  100% { -webkit-transform: rotate(135deg); }
+  100% {
+    -webkit-transform: rotate(135deg);
+  }
 }
+
 @keyframes spinner3 {
-  100% { -webkit-transform: rotate(315deg); }
+  100% {
+    -webkit-transform: rotate(315deg);
+  }
 }
+
 @keyframes spinner4 {
-  100% { -webkit-transform: rotate(225deg); }
+  100% {
+    -webkit-transform: rotate(225deg);
+  }
 }
+
 @keyframes spinner5 {
-  100% { -webkit-transform: rotate(45deg); }
+  100% {
+    -webkit-transform: rotate(45deg);
+  }
 }
+
 @keyframes spinner6 {
-  100% { -webkit-transform: rotate(270deg); }
+  100% {
+    -webkit-transform: rotate(270deg);
+  }
 }
+
 @keyframes spinner7 {
-  100% { -webkit-transform: rotate(90deg); }
+  100% {
+    -webkit-transform: rotate(90deg);
+  }
 }
+
 @keyframes spinner8 {
-  100% { -webkit-transform: rotate(180deg); }
+  100% {
+    -webkit-transform: rotate(180deg);
+  }
 }
