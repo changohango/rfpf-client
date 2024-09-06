@@ -5,6 +5,7 @@ import { Property } from "../game";
 import { db } from "../../firebase";
 import Json from "../../assets/json/properties.json"
 import { getDatabase, onValue, ref, set, update } from "firebase/database";
+import classNames from "classnames";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -14,6 +15,8 @@ interface BoardSpace {
     name: string;
     isProperty: boolean;
 }
+
+const test = "spin .3s linear 10, spinner1 ease-out forwards;"
 
 const boardSpaces: BoardSpace[] = [
     { id: 0, name: "start", isProperty: false },
@@ -54,19 +57,42 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ gameId, currentUser }: any) {    
+function Board({ gameId, currentUser }: any) {
     const [properties, setProperties] = useState<any>(Json)
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
-    
+    const [spinnerResult, setSpinnerResult] = useState(0)
+
+    const conditionalStyles = classNames("spinner", {
+        "noAnimation": spinnerResult == 0,
+        "animation1": spinnerResult == 1,
+        "animation2": spinnerResult == 2,
+        "animation3": spinnerResult == 3,
+        "animation4": spinnerResult == 4,
+        "animation5": spinnerResult == 5,
+        "animation6": spinnerResult == 6,
+        "animation7": spinnerResult == 7,
+        "animation8": spinnerResult == 8,
+    })
+
     useEffect(() => {
         const query = ref(db, "games/" + gameId);
         return onValue(query, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
-                console.log(data.properties)
                 setProperties(data.properties)
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
+        console.log(gameId)
+        return onValue(query, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setSpinnerResult(data);
             }
         });
     }, []);
@@ -83,8 +109,19 @@ function Board({ gameId, currentUser }: any) {
     function handlePurchase() {
         update(ref(db, "games/" + gameId + "/properties/" + currentModal + "/"), {
             owner: currentUser.displayName
-        });        
+        });
         setBoardState({ ...boardState })
+    }
+
+    function getRandomSpin(min: number, max: number) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        const result = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (result != spinnerResult) {
+            update(ref(db, "games/" + gameId + "/gameState/"), { "spinnerResult": result });
+        } else {
+            getRandomSpin(min, max)
+        }
     }
 
     if (properties) return (
@@ -94,11 +131,19 @@ function Board({ gameId, currentUser }: any) {
                     <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
                 </div>
             ))}
+            <div id="spinnerBase">
+                <img src={boardArt('./spinnerBase.svg')} />
+                <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')}/>
+                <div className="text-center">
+                    <Button className="my-3" onClick={() => getRandomSpin(1, 8)}>Spin</Button>
+                    <Button onClick={() => setSpinnerResult(4)}>Reset</Button>
+                </div>
+            </div>
             {show && <Modal show={show} onHide={handleClose}>
                 <>
-                {properties && <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
-                    <Modal.Title>{properties[currentModal].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal} /></Modal.Title>
-                </Modal.Header>}
+                    {properties && <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
+                        <Modal.Title>{properties[currentModal].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal} /></Modal.Title>
+                    </Modal.Header>}
                 </>
                 <Modal.Body>
                     <div className="d-flex">
@@ -125,7 +170,7 @@ function Board({ gameId, currentUser }: any) {
     )
     return (
         <>
-        <h1>test2</h1>
+            <h1>test2</h1>
         </>
     )
 }
