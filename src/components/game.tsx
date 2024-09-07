@@ -45,9 +45,11 @@ function Game({ loggedInUser }: any) {
     const [selectedGame, setSelectedGame] = useState();
     const [showAddFriend, setShowAddFriend] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
+    const [showSearchGame, setShowSearchGame] = useState(false);
     const [triggerReload, setTriggerReload] = useState(false);
     const [playerIds, setPlayerIds] = useState<any>()
     const [playerNames, setPlayerNames] = useState<any[]>([]);
+    const [gameFound, setGameFound] = useState(false);
 
     useEffect(() => {
         getGames()
@@ -66,7 +68,64 @@ function Game({ loggedInUser }: any) {
         }
     }, [selectedGame])
 
-    function createNewGame(e: any) {
+    function searchForGame(e: any) {
+        e.preventDefault()
+        const { gameId } = e.target.elements
+        console.log(gameId.value)
+        get(ref(db, "gameIds")).then(async (snapshot) => {
+            if (snapshot.val()) {
+                const data = Object.keys(snapshot.val())
+                console.log(data)
+                var matchFound = false
+                for (var i in data) {
+                    if (gameId.value == data[i]) {
+                        matchFound = true
+                    }
+                }
+                if (matchFound) {
+                    setGameFound(true)
+                    const usersRef = query(ref(db, 'games'), ...[orderByChild("gameId"), equalTo(gameId.value)])
+                    const snapshot = await get(usersRef);
+                    const gameKey = Object.keys(snapshot.val())[0];
+                    const includeLoggedInUser: any = {}
+                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName }
+                    update(ref(db, "games/" + gameKey + "/players"), includeLoggedInUser)
+                } else {
+                    setGameFound(false)
+                }
+            }
+        })
+    }
+
+    function makeId(length: number) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+        return result;
+    }
+
+    function checkMatch(data: any) {
+        const gameId = makeId(5)
+        var matchFound = false
+        for (var i in data) {
+            if (gameId == data[i]) {
+                matchFound = true
+            }
+        }
+
+        if (!matchFound) {
+            return gameId
+        } else {
+            checkMatch(data)
+        }
+    }
+
+    async function createNewGame(e: any) {
         e.preventDefault()
         const { gameName } = e.target.elements
         const obj: any = {}
@@ -75,7 +134,20 @@ function Game({ loggedInUser }: any) {
         const includeLoggedInUser: any = {}
         includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName }
 
+        var gameRandId: any = "";
+        await get(ref(db, "gameIds")).then((snapshot) => {
+            if (snapshot.val()) {
+                gameRandId = checkMatch(Object.keys(snapshot.val()))
+            } else {
+                gameRandId = makeId(5)
+            }
+        })
+
+        const gameIdObj: any = {}
+        gameIdObj[gameRandId] = true
+
         update(ref(db, "gameKeys/"), obj);
+        update(ref(db, "gameIds"), gameIdObj);
         set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
             for (var i in invitedFriends) {
                 update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
@@ -83,16 +155,25 @@ function Game({ loggedInUser }: any) {
         }).then(() => {
             update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
         }).then(() => {
-            // get(ref(db, "games/" + gameName.value + "/players")).then((snapshot) => {
-            //     for (var i in Object.keys(snapshot.val())) {
-            //         update(ref(db, "games/" + gameName.value + "/players/" + Object.keys(snapshot.val())[i]),
-            //             {
-
-            //             })
-            //     }
-            // })
+            update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
         })
         handleCloseNewGame()
+    }
+
+    async function getGameIds() {
+        const gamesRef = query(ref(db, "gameIds"), ...[orderByKey()]);
+        const games: any = []
+        await get(gamesRef).then(async (snapshot) => {
+            if (snapshot.exists()) {
+                for (var i in Object.keys(snapshot.val())) {
+                    const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/players"), ...[orderByKey()]))
+                    if (Object.keys(data.val()).includes(loggedInUser.uid)) {
+                        games.push(Object.keys(snapshot.val())[i])
+                    }
+                }
+            }
+        })
+        setGameKeys(games)
     }
 
     async function getGames() {
@@ -193,6 +274,7 @@ function Game({ loggedInUser }: any) {
                 <hr />
                 <div className="mt-5">
                     <Button onClick={() => handleNewGame()}>New Game</Button>
+                    <Button className="mx-3" onClick={() => setShowSearchGame(true)}>Find Game</Button>
                 </div>
                 <hr />
                 <div className="mt-5">
@@ -253,6 +335,26 @@ function Game({ loggedInUser }: any) {
                         </div>
                         <hr />
                         {invitedFriends[0] ? <Button type="submit">Start Game</Button> : <Button variant="secondary" disabled>Start Game</Button>}
+                    </Form>
+                </Modal.Body>
+            </Modal>
+            <Modal show={showSearchGame} onHide={() => setShowSearchGame(false)}>
+                <>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Search for a Game</Modal.Title>
+                    </Modal.Header>
+                </>
+                <Modal.Body>
+                    <Form onSubmit={searchForGame}>
+                        <Form.Group className="mb-3" controlId="gameId">
+                            <Form.Label>Game ID</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Game ID" />
+                        </Form.Group>
+                        <Button variant="primary" type="submit">
+                            Join
+                        </Button>
+                        <hr />
+                        {gameFound && <h1>Game Found!</h1>}
                     </Form>
                 </Modal.Body>
             </Modal>
