@@ -1,5 +1,5 @@
 import Board from "./board/board";
-import { db } from "../firebase";
+import { db, handleSignOut } from "../firebase";
 import { child, equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Modal } from "react-bootstrap";
@@ -57,6 +57,7 @@ function Game({ loggedInUser }: any) {
     }, [triggerReload]);
 
     useEffect(() => {
+        setPlayerNames([])
         if (selectedGame) {
             get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
                 setPlayerIds(Object.keys(snapshot.val()))
@@ -281,6 +282,7 @@ function Game({ loggedInUser }: any) {
                     <Button onClick={() => setShowAddFriend(true)}>Add Friend</Button>
                 </div>
                 <hr />
+                <Button className='my-5' onClick={handleSignOut}>Logout</Button>
             </>}
             <Modal show={showAddFriend} onHide={() => setShowAddFriend(false)}>
                 <>

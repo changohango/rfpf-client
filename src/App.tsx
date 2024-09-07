@@ -28,7 +28,6 @@ function App() {
     <React.StrictMode>
       <div className="App">
         {isLoggedIn ? <Game loggedInUser={loggedInUser} /> : <Login />}
-        {isLoggedIn && <Button className='my-5' onClick={handleSignOut}>Logout</Button>}
       </div>
     </React.StrictMode>
   );
