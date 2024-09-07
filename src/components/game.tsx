@@ -46,11 +46,25 @@ function Game({ loggedInUser }: any) {
     const [showAddFriend, setShowAddFriend] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
     const [triggerReload, setTriggerReload] = useState(false);
+    const [playerIds, setPlayerIds] = useState<any>()
+    const [playerNames, setPlayerNames] = useState<any[]>([]);
 
     useEffect(() => {
         getGames()
         setTriggerReload(false)
     }, [triggerReload]);
+
+    useEffect(() => {
+        if (selectedGame) {
+            get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
+                setPlayerIds(Object.keys(snapshot.val()))
+                for (var i in Object.keys(snapshot.val())) {
+                    console.log(snapshot.val()[Object.keys(snapshot.val())[i]].name)
+                    setPlayerNames(playerNames => [...playerNames, snapshot.val()[Object.keys(snapshot.val())[i]].name])
+                }
+            })
+        }
+    }, [selectedGame])
 
     function createNewGame(e: any) {
         e.preventDefault()
@@ -59,16 +73,24 @@ function Game({ loggedInUser }: any) {
         obj[gameName.value] = true
 
         const includeLoggedInUser: any = {}
-        includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName}
-        console.log(invitedFriends)
+        includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName }
 
         update(ref(db, "gameKeys/"), obj);
         set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
             for (var i in invitedFriends) {
-                update(ref(db, "games/" + gameName.value + "/invitedPlayers"), invitedFriends[i])
+                update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
             }
         }).then(() => {
-            update(ref(db, "games/" + gameName.value + "/invitedPlayers"), includeLoggedInUser )
+            update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
+        }).then(() => {
+            // get(ref(db, "games/" + gameName.value + "/players")).then((snapshot) => {
+            //     for (var i in Object.keys(snapshot.val())) {
+            //         update(ref(db, "games/" + gameName.value + "/players/" + Object.keys(snapshot.val())[i]),
+            //             {
+
+            //             })
+            //     }
+            // })
         })
         handleCloseNewGame()
     }
@@ -79,14 +101,13 @@ function Game({ loggedInUser }: any) {
         await get(gamesRef).then(async (snapshot) => {
             if (snapshot.exists()) {
                 for (var i in Object.keys(snapshot.val())) {
-                    const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/invitedPlayers"), ...[orderByKey()]))
+                    const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/players"), ...[orderByKey()]))
                     if (Object.keys(data.val()).includes(loggedInUser.uid)) {
                         games.push(Object.keys(snapshot.val())[i])
                     }
                 }
             }
         })
-        console.log(games)
         setGameKeys(games)
     }
 
@@ -145,16 +166,23 @@ function Game({ loggedInUser }: any) {
 
     return (
         <>
-            {selectedGame && <Button onClick={() => setSelectedGame(undefined)}>Back</Button>}
-            <div className="container">
-                <div className="row">
-                    <div className="col">
-                        {selectedGame && <Board gameId={selectedGame} currentUser={loggedInUser} />}
+            {selectedGame &&
+                <>
+                    <Button onClick={() => setSelectedGame(undefined)}>Back</Button>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col">
+                                <Board gameId={selectedGame} currentUser={loggedInUser} />
+                            </div>
+                            <div className="col">
+                                <h1>Players</h1>
+                                {playerNames && playerNames.map((player: any) => (
+                                    <p>{player}</p>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                    <div className="col">
-                    </div>
-                </div>
-            </div>
+                </>}
             {!selectedGame && <>
                 <h3>Welcome back, {loggedInUser.displayName}!</h3>
                 <br />

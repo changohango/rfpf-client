@@ -38,7 +38,6 @@ function Login() {
                 updateProfile(user, { displayName: name.value }).then(() => {
                     const obj: any = {}
                     obj[user.uid] = { "name": user.displayName, "email": email.value, "activeGames": [], "friends": [] }
-                    console.log(obj)
                     update(ref(db, "users/"), obj);
                 })
             })
@@ -49,11 +48,9 @@ function Login() {
     function handleLogin(e: any) {
         e.preventDefault()
         const { email, password } = e.target.elements
-        console.log({ email: email.value, password: password.value })
         signInWithEmailAndPassword(auth, email.value, password.value)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log(user)
             })
         setShowLogin(false)
     }

@@ -90,14 +90,12 @@ function Board({ gameId, currentUser }: any) {
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
-        console.log(gameId)
         return onValue(query, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
                 if (data == 9) {
                     const randIndex = Math.floor(Math.random() * (7 - 0 + 1));
                     const root = document.documentElement;
-                    console.log(lineDegrees[randIndex])
                     root.style.setProperty('--lineNumber', `${lineDegrees[randIndex]}deg`)
                 }
                 setSpinnerResult(data);
