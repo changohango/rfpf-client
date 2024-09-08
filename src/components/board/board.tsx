@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
-import { Property } from "../game";
+import { Property } from "../dashboard/dashboard";
 import { db } from "../../firebase";
 import Json from "../../assets/json/properties.json"
 import { getDatabase, onValue, ref, set, update } from "firebase/database";

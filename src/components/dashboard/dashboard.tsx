@@ -1,9 +1,11 @@
-import Board from "./board/board";
-import { db, handleSignOut } from "../firebase";
+import Board from "../board/board";
+import { db, handleSignOut } from "../../firebase";
 import { child, equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
-import { Button, Card, Form, Modal } from "react-bootstrap";
-import newGameTemplate from "../assets/json/newGameTemplate.json"
+import { Button, Card, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import newGameTemplate from "../../assets/json/newGameTemplate.json"
+
+import './dashboard.css';
 
 interface Player {
     id: number;
@@ -57,14 +59,15 @@ function Game({ loggedInUser }: any) {
     }, [triggerReload]);
 
     useEffect(() => {
-        setPlayerNames([])
         if (selectedGame) {
             get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
                 setPlayerIds(Object.keys(snapshot.val()))
+                const players = []
                 for (var i in Object.keys(snapshot.val())) {
                     console.log(snapshot.val()[Object.keys(snapshot.val())[i]].name)
-                    setPlayerNames(playerNames => [...playerNames, snapshot.val()[Object.keys(snapshot.val())[i]].name])
+                    players.push(snapshot.val()[Object.keys(snapshot.val())[i]].name)
                 }
+                setPlayerNames(players)
             })
         }
     }, [selectedGame])
@@ -251,18 +254,12 @@ function Game({ loggedInUser }: any) {
             {selectedGame &&
                 <>
                     <Button onClick={() => setSelectedGame(undefined)}>Back</Button>
-                    <div className="container">
-                        <div className="row">
-                            <div className="col">
-                                <Board gameId={selectedGame} currentUser={loggedInUser} />
-                            </div>
-                            <div className="col">
-                                <h1>Players</h1>
-                                {playerNames && playerNames.map((player: any) => (
-                                    <p>{player}</p>
-                                ))}
-                            </div>
-                        </div>
+                    <Board gameId={selectedGame} currentUser={loggedInUser} />
+                    <div className="sidePanel">
+                        <h1>Players</h1>
+                        {playerNames && playerNames.map((player: any) => (
+                            <p>{player}</p>
+                        ))}
                     </div>
                 </>}
             {!selectedGame && <>
@@ -336,7 +333,7 @@ function Game({ loggedInUser }: any) {
                             ))}
                         </div>
                         <hr />
-                        {invitedFriends[0] ? <Button type="submit">Start Game</Button> : <Button variant="secondary" disabled>Start Game</Button>}
+                        <Button type="submit">Start Game</Button>
                     </Form>
                 </Modal.Body>
             </Modal>

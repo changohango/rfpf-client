@@ -1,6 +1,6 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Game from './components/game';
+import Game from './components/dashboard/dashboard';
 import Login from './components/login';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, updateProfile, User } from 'firebase/auth';
