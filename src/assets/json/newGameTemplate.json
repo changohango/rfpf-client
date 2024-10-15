@@ -1,6 +1,7 @@
 {
     "gameState" : {
-        "gameStarted": false
+        "gameStarted": false,
+        "currentTurn": 0
     },
     "properties": {
         "davis": {

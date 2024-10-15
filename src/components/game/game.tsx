@@ -9,6 +9,8 @@ import { db } from "../../firebase";
 function Game({selectedGame, loggedInUser}: any) {
     const [properties, setProperties] = useState<any>(Json)
     const [playerBalance, setPlayerBalance] = useState();
+    const [gameState, setGameState] = useState();
+    const [players, setPlayers] = useState();
     
     useEffect(() => {
         if (selectedGame) {
@@ -26,13 +28,27 @@ function Game({selectedGame, loggedInUser}: any) {
                 setProperties(data.properties)
             }
         });
+        const gameStateQuery = ref(db, "games/" + selectedGame + "/gameState")
+        onValue(gameStateQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setGameState(data)
+            }
+        })
+        const playersQuery = ref(db, "games/" + selectedGame + "/players")
+        onValue(playersQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setPlayers(data)
+            }
+        })
     }, []);
 
     
     return (
         <>
-            <Board gameId={selectedGame} currentUser={loggedInUser} properties={properties} playerBalance={playerBalance} />
-            <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} />
+            <Board gameId={selectedGame} currentUser={loggedInUser} properties={properties} playerBalance={playerBalance} gameState={gameState} players={players} />
+            <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} gameState={gameState} players={players} />
         </>
     )
 }

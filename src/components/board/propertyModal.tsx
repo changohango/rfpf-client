@@ -2,7 +2,7 @@ import { Button, Col, Container, Modal, Row } from "react-bootstrap";
 import { upgradeProperty } from "../../firebase";
 const images = require.context('../../assets/icons', true);
 
-function PropertyModal({ show, handleClose, properties, currentModal, playerBalance, handlePurchase, selectedGame, loggedInUser }: any) {
+function PropertyModal({ show, handleClose, properties, currentModal, playerBalance, handlePurchase, selectedGame, loggedInUser, gameState }: any) {
 
     return (
         <>
@@ -55,7 +55,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                     </Container>
                 </Modal.Body>
                 <Modal.Footer>
-                    {(properties[currentModal].owner === "None" && properties[currentModal].price < playerBalance && handlePurchase !== "None") ?
+                    {(properties[currentModal].owner === "None" && properties[currentModal].price < playerBalance && handlePurchase !== "None" && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid) ?
                         <Button variant="primary" onClick={() => handlePurchase(properties[currentModal].price)}>Purchase</Button> :
                         <Button disabled variant="primary" onClick={() => handlePurchase(properties[currentModal].price)}>Purchase</Button>}
                     <Button variant="secondary" onClick={handleClose}>

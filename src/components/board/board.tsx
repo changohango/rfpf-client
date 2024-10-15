@@ -58,7 +58,7 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ gameId, currentUser, properties, playerBalance }: any) {
+function Board({ gameId, currentUser, properties, playerBalance, gameState, players }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
@@ -107,7 +107,6 @@ function Board({ gameId, currentUser, properties, playerBalance }: any) {
         });
         push(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/properties"), currentModal)
         const newBal = playerBalance - price
-        console.log(price)
         set(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/balance"), newBal)
         setBoardState({ ...boardState })
     }
@@ -124,7 +123,43 @@ function Board({ gameId, currentUser, properties, playerBalance }: any) {
         }
     }
 
-    if (properties) return (
+    function endTurn() {
+        if (gameState["currentTurn"] + 1 > Object.keys(players).length-1) {
+            update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": 0 })
+        } else {
+            update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": gameState["currentTurn"] + 1 })
+        }
+    }
+
+    function startGame() {
+        const numPlayers = Object.keys(players).length
+        var shuffle: any = Object.keys(players)
+        var currentIndex = numPlayers
+
+        while (currentIndex != 0) {
+
+            // Pick a remaining element...
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [shuffle[currentIndex], shuffle[randomIndex]] = [
+                shuffle[randomIndex], shuffle[currentIndex]];
+        }
+
+        const turnOrder: any = {}
+        for (var i in shuffle.length) {
+            turnOrder[shuffle[i]] = true
+        }
+
+        var newGameState = gameState
+        newGameState["gameStarted"] = true
+        newGameState["turnOrder"] = shuffle
+        newGameState["currentTurn"] = 0
+        update(ref(db, "games/" + gameId + "/gameState/"), newGameState)
+    }
+
+    if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
                 <div className="pointer" key={boardSpace.id}>
@@ -135,11 +170,18 @@ function Board({ gameId, currentUser, properties, playerBalance }: any) {
                 <img src={boardArt('./spinnerBase.svg')} />
                 <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')} />
                 <div className="text-center">
-                    <Button className="my-3" onClick={() => getRandomSpin(1, 9)}>Spin</Button>
+                    {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid) && <Button className="my-3" onClick={() => getRandomSpin(1, 9)}>Spin</Button>}
                     {spinnerResult === 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
-            {show && <PropertyModal loggedInUser={currentUser} show={show} selectedGame={gameId} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={handlePurchase} />}
+            {gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && <div id="turnNotification">
+                <h3>It is your turn!</h3>
+            </div>}
+            <div id="startGame">
+                {(!gameState["gameStarted"] && gameState["gameOwner"] === currentUser.uid) && <Button onClick={() => startGame()}>Start Game!</Button>}
+                {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid) && <Button onClick={() => endTurn()}>End Turn</Button>}
+            </div>
+            {show && <PropertyModal loggedInUser={currentUser} show={show} selectedGame={gameId} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={handlePurchase} gameState={gameState} />}
         </>
     )
     return (

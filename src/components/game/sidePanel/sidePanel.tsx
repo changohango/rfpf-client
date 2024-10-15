@@ -20,7 +20,7 @@ export function getUpgradeColor(upgradeStatus: any) {
         return "#10e063"
 }
 
-function SidePanel({ loggedInUser, selectedGame, properties }: any) {
+function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [playerBalance, setPlayerBalance] = useState();
     const [playerNames, setPlayerNames] = useState<any[]>([]);
@@ -59,7 +59,6 @@ function SidePanel({ loggedInUser, selectedGame, properties }: any) {
                     var newOtherPlayers = snapshot.val();
                     delete newOtherPlayers[loggedInUser.uid]
                     setOtherPlayers(newOtherPlayers)
-                    console.log(newOtherPlayers)
                 }
             })
             get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
@@ -89,6 +88,7 @@ function SidePanel({ loggedInUser, selectedGame, properties }: any) {
         }
     }
 
+    console.log(gameState)
     return (
         <>
             <div className="sidePanel1">
@@ -118,11 +118,11 @@ function SidePanel({ loggedInUser, selectedGame, properties }: any) {
             </div>
             <div className="sidePanel2">
                 <h1>Players</h1>
-                <div className="d-flex">
+                {gameState && <div className="d-flex">
                     {otherPlayers && Object.keys(otherPlayers).map((player: any) => (
                         <Card className="me-3" key={player} onClick={() => handleOtherPlayerShow(otherPlayers[player])}>
                             <Card.Body className="justify-content-center">
-                                <Card.Title>{otherPlayers[player].name}</Card.Title>
+                                {gameState["gameStarted"] && <Card.Title>{otherPlayers[player].name} {gameState["turnOrder"][gameState["currentTurn"]] === player && <i className="bi bi-star-fill"></i>}</Card.Title>}
                                 <Card.Text>
                                     Balance: {otherPlayers[player].balance}
                                 </Card.Text>
@@ -134,9 +134,9 @@ function SidePanel({ loggedInUser, selectedGame, properties }: any) {
                             </Card.Body>
                         </Card>
                     ))}
-                </div>
+                </div>}
             </div>
-            {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={"None"} />}
+            {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={"None"} gameState={gameState} />}
             {(showOtherPlayerInfo && selectedOtherPlayer) && <OtherPlayerModal show={showOtherPlayerInfo} player={selectedOtherPlayer} handleClose={handleOtherPlayerClose} properties={properties} images={images}/>}
         </>
     )

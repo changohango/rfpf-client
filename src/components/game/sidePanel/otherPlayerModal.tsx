@@ -2,8 +2,6 @@ import { Button, ButtonGroup, Modal } from "react-bootstrap";
 import { getUpgradeColor } from "./sidePanel";
 
 function OtherPlayerModal({ player, show, handleClose, properties, images }: any) {
-    console.log(player)
-
     return (
         <>
             <Modal show={show} onHide={handleClose}>
