@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
 import { db } from "../../firebase";
 import Json from "../../assets/json/properties.json"
-import { get, onValue, push, ref, set, update } from "firebase/database";
+import { equalTo, get, onChildChanged, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
 import classNames from "classnames";
 import PropertyModal from "./propertyModal";
 
@@ -63,9 +63,10 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
     const [spinnerResult, setSpinnerResult] = useState(0)
-    const [didSpin, setDidSpin] = useState<any>();
+    const [didSpin, setDidSpin] = useState<any>(false);
     const [purchasedProperty, setPurchasedProperty] = useState<any>();
     const [boardSpace, setBoardSpace] = useState<any>();
+    const [displayPieces, setDisplayPieces] = useState<any>();
 
     const conditionalStyles = classNames("spinner", {
         "noAnimation": spinnerResult === 0,
@@ -79,17 +80,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         "animation8": spinnerResult === 8,
         "line": spinnerResult === 9
     })
-
-    useEffect(() => {
-        if (gameState) {
-            if (gameState["turnOrder"][gameState["currentTurn"]] == currentUser.uid) {
-                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
-                    "didSpin": false
-                });
-                setDidSpin(false)
-            }
-        }
-    }, [gameState])
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
@@ -109,9 +99,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         onValue(didSpinQuery, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
-                setDidSpin(data);
+                setDidSpin(data);  // Set didSpin to true/false
+            } else {
+                setDidSpin(false);  // Default to false if no data exists
             }
-        })
+        });
 
         const boardSpaceQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/boardSpace");
         onValue(boardSpaceQuery, (snapshot) => {
@@ -120,7 +112,21 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 setBoardSpace(data);
             }
         })
-    }, []);
+
+        const displayPiecesQuery = ref(db, "games/" + gameId + "/players/")
+        onValue(displayPiecesQuery, (snapshot) => {
+            const data = snapshot.val()
+            var newDisplayPieces = []
+            if (snapshot.exists()) {
+                for (var i in Object.keys(data)) {
+                    var newObj: any = {}
+                    newObj[Object.keys(data)[i]] = { "boardSpace": data[Object.keys(data)[i]].boardSpace, "color": data[Object.keys(data)[i]].tractorColor }
+                    newDisplayPieces.push(newObj)
+                }
+            }
+            setDisplayPieces(newDisplayPieces)
+        })
+    }, [gameId, currentUser.uid]);
 
     const handleClose = () => setShow(false);
 
@@ -133,7 +139,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
 
     function handlePurchase(price: any) {
         update(ref(db, "games/" + gameId + "/properties/" + currentModal + "/"), {
-            owner: currentUser.displayName
+            owner: currentUser.uid
         });
         push(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/properties"), currentModal)
         const newBal = playerBalance - price
@@ -167,14 +173,15 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         }
                         if (match !== "") {
                             if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
+                                console.log(currentUser.uid + " paying " + match + " " + properties[match].rentDue)
                                 const newBal = playerBalance - properties[match].rentDue
-                                set(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/balance"), newBal)
+                                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": newBal })
                                 get(ref(db, "games/" + gameId + "/players/" + properties[match].owner + "/balance")).then((snapshot) => {
                                     var ownerBal = 0
                                     if (snapshot.exists()) {
                                         ownerBal = snapshot.val() + properties[match].rentDue
                                     }
-                                    set(ref(db, "games/" + gameId + "/players/" + properties[match].owner + "/balance"), ownerBal)
+                                    update(ref(db, "games/" + gameId + "/players/" + properties[match].owner), { "balance": ownerBal })
                                 })
                             }
                         }
@@ -260,6 +267,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 gameState={gameState}
                 boardSpace={boardSpace}
                 didSpin={didSpin} />}
+            {displayPieces && displayPieces.map((piece: any) => (
+                <>
+                    <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
+                </>
+            ))}
         </>
     )
     return (

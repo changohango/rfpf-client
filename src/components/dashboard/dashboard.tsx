@@ -30,6 +30,10 @@ export interface Property {
 }
 
 
+const tractorColors2 = ["#00005c", "#870000", "#1b5700", "#a14308", "#e3ba05", "#000000"]
+
+
+
 
 function Dashboard({ loggedInUser }: any) {
     const [foundFriend, setFoundFriend] = useState<any>();
@@ -124,6 +128,8 @@ function Dashboard({ loggedInUser }: any) {
             }
         })
 
+        const tractorColors = ["blue", "red", "green", "brown", "yellow", "black"]
+
         const gameIdObj: any = {}
         gameIdObj[gameRandId] = true
 
@@ -131,21 +137,29 @@ function Dashboard({ loggedInUser }: any) {
         update(ref(db, "gameIds"), gameIdObj);
         set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
             for (var i in invitedFriends) {
+                const randIndex = Math.floor(Math.random() * tractorColors.length)
+                var tractorColor = tractorColors[randIndex];
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].balance = 25000;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].boardSpace = 0;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].didSpin = false;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].didUpgrade = false;
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].tractorColor = tractorColor
+                tractorColors.splice(randIndex, 1);
                 update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
             }
         }).then(() => {
+            const randIndex = Math.floor(Math.random() * tractorColors.length)
+            var tractorColor = tractorColors[randIndex];
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].balance = 25000;
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].boardSpace = 0;
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].didSpin = false;
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].didUpgrade = false;
+            includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].tractorColor = tractorColor
             update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
+            delete tractorColors[randIndex];
         }).then(() => {
             update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
-            update(ref(db, "games/" + gameName.value + "/gameState"), {"gameOwner": loggedInUser.uid})
+            update(ref(db, "games/" + gameName.value + "/gameState"), { "gameOwner": loggedInUser.uid })
         })
         handleCloseNewGame()
     }

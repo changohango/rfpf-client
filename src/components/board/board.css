@@ -427,3 +427,228 @@
     -webkit-transform: rotate(var(--lineNumber));
   }
 }
+
+.gamePiece {
+  height: 50px;
+  fill: none;
+  stroke: #646464;
+  stroke-width: 100px;
+  stroke-dasharray: 2,2;
+  stroke-linejoin: round;
+}
+
+.gamePiece-blue {
+  filter: invert(9%) sepia(32%) saturate(6208%) hue-rotate(228deg) brightness(102%) contrast(121%);
+}
+
+.gamePiece-red {
+  filter: invert(6%) sepia(95%) saturate(7422%) hue-rotate(25deg) brightness(94%) contrast(119%);
+}
+
+.gamePiece-green {
+  filter: invert(19%) sepia(94%) saturate(1178%) hue-rotate(69deg) brightness(102%) contrast(102%);
+}
+
+.gamePiece-brown {
+  filter: invert(22%) sepia(99%) saturate(2011%) hue-rotate(21deg) brightness(91%) contrast(94%);
+}
+
+.gamePiece-yellow {
+  filter: invert(75%) sepia(27%) saturate(1500%) hue-rotate(4deg) brightness(95%) contrast(96%);
+}
+
+.gamePiece-black {
+  filter: invert(0%) sepia(4%) saturate(0%) hue-rotate(324deg) brightness(102%) contrast(105%);
+}
+
+#boardSpace0 {
+  position: absolute;
+  top: 870px;
+  left: 600px;
+}
+
+#boardSpace1 {
+  position: absolute;
+  top: 830px;
+  left: 500px;
+}
+
+#boardSpace2 {
+  position: absolute;
+  top: 830px;
+  left: 420px;
+}
+
+#boardSpace3 {
+  position: absolute;
+  top: 830px;
+  left: 350px;
+}
+
+#boardSpace4 {
+  position: absolute;
+  top: 830px;
+  left: 270px;
+}
+
+#boardSpace5 {
+  position: absolute;
+  top: 775px;
+  left: 220px;
+}
+
+#boardSpace6 {
+  position: absolute;
+  top: 710px;
+  left: 150px;
+}
+
+#boardSpace7 {
+  position: absolute;
+  top: 660px;
+  left: 90px;
+}
+
+#boardSpace8 {
+  position: absolute;
+  top: 580px;
+  left: 90px;
+}
+
+#boardSpace9 {
+  position: absolute;
+  top: 500px;
+  left: 80px;
+}
+
+#boardSpace10 {
+  position: absolute;
+  top: 420px;
+  left: 80px;
+}
+
+#boardSpace11 {
+  position: absolute;
+  top: 340px;
+  left: 80px;
+}
+
+#boardSpace12 {
+  position: absolute;
+  top: 260px;
+  left: 80px;
+}
+
+#boardSpace13 {
+  position: absolute;
+  top: 210px;
+  left: 145px;
+}
+
+#boardSpace14 {
+  position: absolute;
+  top: 140px;
+  left: 210px;
+}
+
+#boardSpace15 {
+  position: absolute;
+  top: 80px;
+  left: 270px;
+}
+
+#boardSpace16 {
+  position: absolute;
+  top: 50px;
+  left: 350px;
+}
+
+#boardSpace17 {
+  position: absolute;
+  top: 60px;
+  left: 425px;
+}
+
+#boardSpace18 {
+  position: absolute;
+  top: 60px;
+  left: 510px;
+}
+
+#boardSpace19 {
+  position: absolute;
+  top: 60px;
+  left: 600px;
+}
+
+#boardSpace20 {
+  position: absolute;
+  top: 80px;
+  left: 660px;
+}
+
+#boardSpace21 {
+  position: absolute;
+  top: 150px;
+  left: 720px;
+}
+
+#boardSpace22 {
+  position: absolute;
+  top: 210px;
+  left: 770px;
+}
+
+#boardSpace23 {
+  position: absolute;
+  top: 260px;
+  left: 850px;
+}
+
+#boardSpace24 {
+  position: absolute;
+  top: 330px;
+  left: 860px;
+}
+
+#boardSpace25 {
+  position: absolute;
+  top: 420px;
+  left: 860px;
+}
+
+#boardSpace26 {
+  position: absolute;
+  top: 500px;
+  left: 860px;
+}
+
+#boardSpace27 {
+  position: absolute;
+  top: 580px;
+  left: 860px;
+}
+
+#boardSpace28 {
+  position: absolute;
+  top: 650px;
+  left: 840px;
+}
+
+#boardSpace29 {
+  position: absolute;
+  top: 710px;
+  left: 780px;
+}
+
+#boardSpace30 {
+  position: absolute;
+  top: 770px;
+  left: 720px;
+}
+
+#boardSpace31 {
+  position: absolute;
+  top: 820px;
+  left: 660px;
+}
