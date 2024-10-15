@@ -112,6 +112,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
                             "didSpin": false
                         });
+                        setDidSpin(false)
                     }
                 }
             }
@@ -180,6 +181,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {"didUpgrade": false})
     }
 
     function startGame() {
@@ -230,7 +232,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             </div>}
             <div id="startGame">
                 {(!gameState["gameStarted"] && gameState["gameOwner"] === currentUser.uid) && <Button onClick={() => startGame()}>Start Game!</Button>}
-                {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid) && <Button onClick={() => endTurn()}>End Turn</Button>}
+                {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && didSpin) && <Button onClick={() => endTurn()}>End Turn</Button>}
             </div>
             {show && <PropertyModal
                         loggedInUser={currentUser}
