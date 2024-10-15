@@ -21,7 +21,8 @@
             "price": 6250,
             "rentDue": 620,
             "sell": 2850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "hendersons": {
             "boardNum": 9,
@@ -40,7 +41,8 @@
             "price": 4370,
             "rentDue": 440,
             "sell": 2100,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "jacobs": {
             "boardNum": 13,
@@ -59,7 +61,8 @@
             "price": 4370,
             "rentDue": 440,
             "sell": 2100,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "jeffreys": {
             "boardNum": 21,
@@ -78,7 +81,8 @@
             "price": 1250,
             "rentDue": 120,
             "sell": 850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "landers": {
             "boardNum": 1,
@@ -97,7 +101,8 @@
             "price": 1250,
             "rentDue": 120,
             "sell": 850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "lavenders": {
             "boardNum": 18,
@@ -116,7 +121,8 @@
             "price": 3750,
             "rentDue": 370,
             "sell": 1850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "lewis": {
             "boardNum": 10,
@@ -135,7 +141,8 @@
             "price": 3120,
             "rentDue": 310,
             "sell": 1600,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "millers": {
             "boardNum": 22,
@@ -154,7 +161,8 @@
             "price": 2500,
             "rentDue": 250,
             "sell": 1350,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "parkers": {
             "boardNum": 6,
@@ -173,7 +181,8 @@
             "price": 1250,
             "rentDue": 120,
             "sell": 850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "phillips": {
             "boardNum": 14,
@@ -192,7 +201,8 @@
             "price": 5000,
             "rentDue": 500,
             "sell": 2350,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "robbins": {
             "boardNum": 25,
@@ -211,7 +221,8 @@
             "price": 3120,
             "rentDue": 310,
             "sell": 1600,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "scotts": {
             "boardNum": 17,
@@ -230,7 +241,8 @@
             "price": 2500,
             "rentDue": 250,
             "sell": 1350,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "sharps": {
             "boardNum": 5,
@@ -249,7 +261,8 @@
             "price": 620,
             "rentDue": 60,
             "sell": 300,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "smiths": {
             "boardNum": 26,
@@ -268,7 +281,8 @@
             "price": 3750,
             "rentDue": 370,
             "sell": 1850,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "vernons": {
             "boardNum": 2,
@@ -287,7 +301,8 @@
             "price": 1870,
             "rentDue": 180,
             "sell": 1050,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         },
         "watsons": {
             "boardNum": 29,
@@ -306,7 +321,8 @@
             "price": 5000,
             "rentDue": 500,
             "sell": 2350,
-            "upgradeStatus": "None"
+            "upgradeStatus": "None",
+            "justPurchased": true
         }
     }
 }

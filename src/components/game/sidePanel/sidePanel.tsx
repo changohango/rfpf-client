@@ -91,7 +91,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
     console.log(gameState)
     return (
         <>
-            <div className="sidePanel1">
+            {gameState && <div className="sidePanel1">
                 <h2>Your Balance: {playerBalance}</h2>
                 <div>
                     <h3>Your Properties</h3>
@@ -115,8 +115,9 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
                         </ButtonGroup>
                     ))}
                 </div>
-            </div>
-            <div className="sidePanel2">
+            </div>}
+            
+            {gameState && <div className="sidePanel2">
                 <h1>Players</h1>
                 {gameState && <div className="d-flex">
                     {otherPlayers && Object.keys(otherPlayers).map((player: any) => (
@@ -135,7 +136,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
                         </Card>
                     ))}
                 </div>}
-            </div>
+            </div>}
             {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={"None"} gameState={gameState} />}
             {(showOtherPlayerInfo && selectedOtherPlayer) && <OtherPlayerModal show={showOtherPlayerInfo} player={selectedOtherPlayer} handleClose={handleOtherPlayerClose} properties={properties} images={images}/>}
         </>

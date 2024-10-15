@@ -69,7 +69,7 @@ function Dashboard({ loggedInUser }: any) {
                     const snapshot = await get(usersRef);
                     const gameKey = Object.keys(snapshot.val())[0];
                     const includeLoggedInUser: any = {}
-                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName, balance: 25000, boardSpace: 0 }
+                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName, balance: 25000, boardSpace: 0, didSpin: false, didUpgrade: false }
                     update(ref(db, "games/" + gameKey + "/players"), includeLoggedInUser)
                 } else {
                     setGameFound(false)
@@ -133,11 +133,15 @@ function Dashboard({ loggedInUser }: any) {
             for (var i in invitedFriends) {
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].balance = 25000;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].boardSpace = 0;
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].didSpin = false;
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].didUpgrade = false;
                 update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
             }
         }).then(() => {
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].balance = 25000;
             includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].boardSpace = 0;
+            includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].didSpin = false;
+            includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].didUpgrade = false;
             update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
         }).then(() => {
             update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
