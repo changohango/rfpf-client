@@ -1,10 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
 import { db } from "../../firebase";
 import Json from "../../assets/json/properties.json"
-import { equalTo, get, onChildChanged, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
+import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
 import classNames from "classnames";
 import PropertyModal from "./propertyModal";
 
@@ -63,7 +63,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
     const [spinnerResult, setSpinnerResult] = useState(0)
-    const [didSpin, setDidSpin] = useState<any>(false);
+    const [didSpin, setDidSpin] = useState<any>();
     const [purchasedProperty, setPurchasedProperty] = useState<any>();
     const [boardSpace, setBoardSpace] = useState<any>();
     const [displayPieces, setDisplayPieces] = useState<any>();
@@ -80,6 +80,16 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         "animation8": spinnerResult === 8,
         "line": spinnerResult === 9
     })
+
+    useEffect(() => {
+        if (gameState && gameState["gameStarted"]) {
+            if (gameState["turnOrder"][gameState["currentTurn"]] == currentUser.uid) {
+                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
+                    "didSpin": false
+                });
+            }
+        }
+    }, [gameState])
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
@@ -99,11 +109,9 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         onValue(didSpinQuery, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
-                setDidSpin(data);  // Set didSpin to true/false
-            } else {
-                setDidSpin(false);  // Default to false if no data exists
+                setDidSpin(data);
             }
-        });
+        })
 
         const boardSpaceQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/boardSpace");
         onValue(boardSpaceQuery, (snapshot) => {
@@ -125,8 +133,9 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 }
             }
             setDisplayPieces(newDisplayPieces)
+            console.log(newDisplayPieces)
         })
-    }, [gameId, currentUser.uid]);
+    }, []);
 
     const handleClose = () => setShow(false);
 
