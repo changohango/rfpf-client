@@ -63,10 +63,12 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
             })
             get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
                 const players = []
-                for (var i in Object.keys(snapshot.val())) {
-                    players.push(snapshot.val()[Object.keys(snapshot.val())[i]].name)
+                if (snapshot.exists()) {
+                    for (var i in Object.keys(snapshot.val())) {
+                        players.push(snapshot.val()[Object.keys(snapshot.val())[i]].name)
+                    }
+                    setPlayerNames(players)
                 }
-                setPlayerNames(players)
             });
         }
         if (selectedGame) {
@@ -88,7 +90,6 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
         }
     }
 
-    console.log(gameState)
     return (
         <>
             {gameState && <div className="sidePanel1">
@@ -116,7 +117,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
                     ))}
                 </div>
             </div>}
-            
+
             {gameState && <div className="sidePanel2">
                 <h1>Players</h1>
                 {gameState && <div className="d-flex">
@@ -138,7 +139,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState }: any) {
                 </div>}
             </div>}
             {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={"None"} gameState={gameState} />}
-            {(showOtherPlayerInfo && selectedOtherPlayer) && <OtherPlayerModal show={showOtherPlayerInfo} player={selectedOtherPlayer} handleClose={handleOtherPlayerClose} properties={properties} images={images}/>}
+            {(showOtherPlayerInfo && selectedOtherPlayer) && <OtherPlayerModal show={showOtherPlayerInfo} player={selectedOtherPlayer} handleClose={handleOtherPlayerClose} properties={properties} images={images} />}
         </>
     )
 }

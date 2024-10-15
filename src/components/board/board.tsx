@@ -81,6 +81,17 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     })
 
     useEffect(() => {
+        if (gameState) {
+            if (gameState["turnOrder"][gameState["currentTurn"]] == currentUser.uid) {
+                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
+                    "didSpin": false
+                });
+                setDidSpin(false)
+            }
+        }
+    }, [gameState])
+
+    useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
         onValue(query, (snapshot) => {
             const data = snapshot.val();
@@ -99,22 +110,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             const data = snapshot.val();
             if (snapshot.exists()) {
                 setDidSpin(data);
-            }
-        })
-
-        const currentTurnQuery = ref(db, "games/" + gameId + "/gameState/currentTurn");
-        onValue(currentTurnQuery, (snapshot) => {
-            const data = snapshot.val();
-            if (snapshot.exists()) {
-                if (gameState) {
-                    if (gameState["turnOrder"][data] == currentUser.uid) {
-                        console.log(data)
-                        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
-                            "didSpin": false
-                        });
-                        setDidSpin(false)
-                    }
-                }
             }
         })
 
@@ -164,6 +159,25 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             newBoardSpace = snapshot.val() + result;
                         }
                         update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "boardSpace": newBoardSpace, "didSpin": true });
+                        var match: any = ""
+                        for (var i in Object.keys(properties)) {
+                            if (properties[Object.keys(properties)[i]].boardNum == newBoardSpace) {
+                                match = Object.keys(properties)[i]
+                            }
+                        }
+                        if (match !== "") {
+                            if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
+                                const newBal = playerBalance - properties[match].rentDue
+                                set(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/balance"), newBal)
+                                get(ref(db, "games/" + gameId + "/players/" + properties[match].owner + "/balance")).then((snapshot) => {
+                                    var ownerBal = 0
+                                    if (snapshot.exists()) {
+                                        ownerBal = snapshot.val() + properties[match].rentDue
+                                    }
+                                    set(ref(db, "games/" + gameId + "/players/" + properties[match].owner + "/balance"), ownerBal)
+                                })
+                            }
+                        }
                     }
                 })
             }
@@ -181,7 +195,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
-        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {"didUpgrade": false})
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false })
     }
 
     function startGame() {
@@ -235,17 +249,17 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && didSpin) && <Button onClick={() => endTurn()}>End Turn</Button>}
             </div>
             {show && <PropertyModal
-                        loggedInUser={currentUser}
-                        show={show}
-                        selectedGame={gameId}
-                        handleClose={handleClose}
-                        properties={properties}
-                        currentModal={currentModal}
-                        playerBalance={playerBalance}
-                        handlePurchase={handlePurchase}
-                        gameState={gameState}
-                        boardSpace={boardSpace}
-                        didSpin = {didSpin} />}
+                loggedInUser={currentUser}
+                show={show}
+                selectedGame={gameId}
+                handleClose={handleClose}
+                properties={properties}
+                currentModal={currentModal}
+                playerBalance={playerBalance}
+                handlePurchase={handlePurchase}
+                gameState={gameState}
+                boardSpace={boardSpace}
+                didSpin={didSpin} />}
         </>
     )
     return (
