@@ -1,18 +1,13 @@
 import Board from "../board/board";
 import { db, handleSignOut } from "../../firebase";
-import { child, equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
+import { equalTo, get, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import { Button, Card, Form, Modal } from "react-bootstrap";
 import newGameTemplate from "../../assets/json/newGameTemplate.json"
 
 import './dashboard.css';
-
-interface Player {
-    id: number;
-    name: string;
-    balance: number;
-    ownedProperties: string[];
-}
+import SidePanel from "../game/sidePanel/sidePanel";
+import Game from "../game/game";
 
 export interface Property {
     boardNum: number
@@ -36,7 +31,7 @@ export interface Property {
 
 
 
-function Game({ loggedInUser }: any) {
+function Dashboard({ loggedInUser }: any) {
     const [foundFriend, setFoundFriend] = useState<any>();
     const [foundFriendUid, setFoundFriendUid] = useState<string>("");
 
@@ -49,28 +44,12 @@ function Game({ loggedInUser }: any) {
     const [showNewGame, setShowNewGame] = useState(false);
     const [showSearchGame, setShowSearchGame] = useState(false);
     const [triggerReload, setTriggerReload] = useState(false);
-    const [playerIds, setPlayerIds] = useState<any>()
-    const [playerNames, setPlayerNames] = useState<any[]>([]);
     const [gameFound, setGameFound] = useState(false);
 
     useEffect(() => {
         getGames()
         setTriggerReload(false)
     }, [triggerReload]);
-
-    useEffect(() => {
-        if (selectedGame) {
-            get(ref(db, "games/" + selectedGame + "/players")).then((snapshot) => {
-                setPlayerIds(Object.keys(snapshot.val()))
-                const players = []
-                for (var i in Object.keys(snapshot.val())) {
-                    console.log(snapshot.val()[Object.keys(snapshot.val())[i]].name)
-                    players.push(snapshot.val()[Object.keys(snapshot.val())[i]].name)
-                }
-                setPlayerNames(players)
-            })
-        }
-    }, [selectedGame])
 
     function searchForGame(e: any) {
         e.preventDefault()
@@ -82,7 +61,7 @@ function Game({ loggedInUser }: any) {
                 console.log(data)
                 var matchFound = false
                 for (var i in data) {
-                    if (gameId.value == data[i]) {
+                    if (gameId.value === data[i]) {
                         matchFound = true
                     }
                 }
@@ -92,7 +71,7 @@ function Game({ loggedInUser }: any) {
                     const snapshot = await get(usersRef);
                     const gameKey = Object.keys(snapshot.val())[0];
                     const includeLoggedInUser: any = {}
-                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName }
+                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName, balance: 25000 }
                     update(ref(db, "games/" + gameKey + "/players"), includeLoggedInUser)
                 } else {
                     setGameFound(false)
@@ -117,7 +96,7 @@ function Game({ loggedInUser }: any) {
         const gameId = makeId(5)
         var matchFound = false
         for (var i in data) {
-            if (gameId == data[i]) {
+            if (gameId === data[i]) {
                 matchFound = true
             }
         }
@@ -154,9 +133,11 @@ function Game({ loggedInUser }: any) {
         update(ref(db, "gameIds"), gameIdObj);
         set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
             for (var i in invitedFriends) {
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].balance = 25000;
                 update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
             }
         }).then(() => {
+            includeLoggedInUser[Object.keys(includeLoggedInUser)[0]].balance = 25000;
             update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
         }).then(() => {
             update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
@@ -164,21 +145,21 @@ function Game({ loggedInUser }: any) {
         handleCloseNewGame()
     }
 
-    async function getGameIds() {
-        const gamesRef = query(ref(db, "gameIds"), ...[orderByKey()]);
-        const games: any = []
-        await get(gamesRef).then(async (snapshot) => {
-            if (snapshot.exists()) {
-                for (var i in Object.keys(snapshot.val())) {
-                    const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/players"), ...[orderByKey()]))
-                    if (Object.keys(data.val()).includes(loggedInUser.uid)) {
-                        games.push(Object.keys(snapshot.val())[i])
-                    }
-                }
-            }
-        })
-        setGameKeys(games)
-    }
+    // async function getGameIds() {
+    //     const gamesRef = query(ref(db, "gameIds"), ...[orderByKey()]);
+    //     const games: any = []
+    //     await get(gamesRef).then(async (snapshot) => {
+    //         if (snapshot.exists()) {
+    //             for (var i in Object.keys(snapshot.val())) {
+    //                 const data = await get(query(ref(db, "games/" + Object.keys(snapshot.val())[i] + "/players"), ...[orderByKey()]))
+    //                 if (Object.keys(data.val()).includes(loggedInUser.uid)) {
+    //                     games.push(Object.keys(snapshot.val())[i])
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     setGameKeys(games)
+    // }
 
     async function getGames() {
         const gamesRef = query(ref(db, "gameKeys"), ...[orderByKey()]);
@@ -254,13 +235,7 @@ function Game({ loggedInUser }: any) {
             {selectedGame &&
                 <>
                     <Button onClick={() => setSelectedGame(undefined)}>Back</Button>
-                    <Board gameId={selectedGame} currentUser={loggedInUser} />
-                    <div className="sidePanel">
-                        <h1>Players</h1>
-                        {playerNames && playerNames.map((player: any) => (
-                            <p>{player}</p>
-                        ))}
-                    </div>
+                    <Game selectedGame={selectedGame} loggedInUser={loggedInUser} />
                 </>}
             {!selectedGame && <>
                 <h3>Welcome back, {loggedInUser.displayName}!</h3>
@@ -361,4 +336,4 @@ function Game({ loggedInUser }: any) {
     )
 }
 
-export default Game;
+export default Dashboard;

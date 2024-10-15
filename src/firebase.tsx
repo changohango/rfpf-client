@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { get, getDatabase, ref, set, update } from "firebase/database";
 import { getAuth, signOut } from "firebase/auth";
 
 const firebaseConfig = {
@@ -18,7 +18,23 @@ export function handleSignOut() {
   }).catch((error) => {
       console.log(error);
   })
-} 
+}
+
+export function upgradeProperty(selectedGame: any, property: any, upgradeStatus: any, playerBalance: any) {
+  get(ref(db, "games/" + selectedGame + "/properties/" + property)).then((snapshot) => {
+    const newObj = snapshot.val();
+    newObj.upgradeStatus = upgradeStatus
+    if (upgradeStatus === "gather") {
+      newObj.rentDue = snapshot.val().layByRent
+    } else {
+      newObj.rentDue = snapshot.val()[upgradeStatus]
+    }
+    const newBal = playerBalance - snapshot.val()[upgradeStatus]
+    update(ref(db, "games/" + selectedGame + "/properties/" + property), newObj)
+    update(ref(db, "games/" + selectedGame + "/players/" + auth.currentUser?.uid), { didUpgrade: true})
+    set(ref(db, "games/" + selectedGame + "/players/" + auth.currentUser?.uid + "/balance"), newBal)
+  })
+}
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);

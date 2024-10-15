@@ -1,4 +1,10 @@
-.sidePanel {
+.sidePanel1 {
     position: absolute;
+    left: 970px;
+}
+
+.sidePanel2 {
+    position: absolute;
+    top: 500px;
     left: 970px;
 }

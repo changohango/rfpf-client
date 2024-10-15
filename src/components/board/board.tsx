@@ -4,8 +4,9 @@ import { Button, Modal } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
 import { db } from "../../firebase";
 import Json from "../../assets/json/properties.json"
-import { getDatabase, onValue, ref, set, update } from "firebase/database";
+import { onValue, push, ref, set, update } from "firebase/database";
 import classNames from "classnames";
+import PropertyModal from "./propertyModal";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -16,7 +17,6 @@ interface BoardSpace {
     isProperty: boolean;
 }
 
-const test = "spin .3s linear 10, spinner1 ease-out forwards;"
 const lineDegrees = [23, 67, 112, 157, 203, 247, 294, 339]
 
 const boardSpaces: BoardSpace[] = [
@@ -58,42 +58,31 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ gameId, currentUser }: any) {
-    const [properties, setProperties] = useState<any>(Json)
+function Board({ gameId, currentUser, properties, playerBalance }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
     const [spinnerResult, setSpinnerResult] = useState(0)
 
     const conditionalStyles = classNames("spinner", {
-        "noAnimation": spinnerResult == 0,
-        "animation1": spinnerResult == 1,
-        "animation2": spinnerResult == 2,
-        "animation3": spinnerResult == 3,
-        "animation4": spinnerResult == 4,
-        "animation5": spinnerResult == 5,
-        "animation6": spinnerResult == 6,
-        "animation7": spinnerResult == 7,
-        "animation8": spinnerResult == 8,
-        "line": spinnerResult == 9
+        "noAnimation": spinnerResult === 0,
+        "animation1": spinnerResult === 1,
+        "animation2": spinnerResult === 2,
+        "animation3": spinnerResult === 3,
+        "animation4": spinnerResult === 4,
+        "animation5": spinnerResult === 5,
+        "animation6": spinnerResult === 6,
+        "animation7": spinnerResult === 7,
+        "animation8": spinnerResult === 8,
+        "line": spinnerResult === 9
     })
-
-    useEffect(() => {
-        const query = ref(db, "games/" + gameId);
-        return onValue(query, (snapshot) => {
-            const data = snapshot.val();
-            if (snapshot.exists()) {
-                setProperties(data.properties)
-            }
-        });
-    }, []);
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
         return onValue(query, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
-                if (data == 9) {
+                if (data === 9) {
                     const randIndex = Math.floor(Math.random() * (7 - 0 + 1));
                     const root = document.documentElement;
                     root.style.setProperty('--lineNumber', `${lineDegrees[randIndex]}deg`)
@@ -112,10 +101,14 @@ function Board({ gameId, currentUser }: any) {
         }
     }
 
-    function handlePurchase() {
+    function handlePurchase(price: any) {
         update(ref(db, "games/" + gameId + "/properties/" + currentModal + "/"), {
             owner: currentUser.displayName
         });
+        push(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/properties"), currentModal)
+        const newBal = playerBalance - price
+        console.log(price)
+        set(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/balance"), newBal)
         setBoardState({ ...boardState })
     }
 
@@ -143,36 +136,10 @@ function Board({ gameId, currentUser }: any) {
                 <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')} />
                 <div className="text-center">
                     <Button className="my-3" onClick={() => getRandomSpin(1, 9)}>Spin</Button>
-                    {spinnerResult == 9 && <p>LINE!! Spin again</p>}
+                    {spinnerResult === 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
-            {show && <Modal show={show} onHide={handleClose}>
-                <>
-                    {properties && <Modal.Header closeButton style={{ background: properties[currentModal].color }}>
-                        <Modal.Title>{properties[currentModal].name}<img className="mx-2 modalImage" src={images(`./${currentModal}.png`)} alt={currentModal} /></Modal.Title>
-                    </Modal.Header>}
-                </>
-                <Modal.Body>
-                    <div className="d-flex">
-                        <h4>Owned By: {properties[currentModal].owner}</h4>
-                        <h4 className="mx-auto">Price: {properties[currentModal].price}</h4>
-                    </div>
-                    <br></br>
-                    <p>Rent Due: {properties[currentModal].rentDue}</p>
-                    <p>Plow: {properties[currentModal].plow}</p>
-                    <p>Fertilize: {properties[currentModal].fertilize}</p>
-                    <p>Plant: {properties[currentModal].plant}</p>
-                    <p>Gather: {properties[currentModal].gather}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    {properties[currentModal].owner === "None" ?
-                        <Button variant="primary" onClick={handlePurchase}>Purchase</Button> :
-                        <Button disabled variant="primary" onClick={handlePurchase}>Purchase</Button>}
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>}
+            {show && <PropertyModal loggedInUser={currentUser} show={show} selectedGame={gameId} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={handlePurchase} />}
         </>
     )
     return (
