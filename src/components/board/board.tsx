@@ -63,7 +63,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
     const [spinnerResult, setSpinnerResult] = useState(0)
-    const [didSpin, setDidSpin] = useState<any>();
+    const [didSpin, setDidSpin] = useState<any>(false);
     const [purchasedProperty, setPurchasedProperty] = useState<any>();
     const [boardSpace, setBoardSpace] = useState<any>();
     const [displayPieces, setDisplayPieces] = useState<any>();
@@ -87,9 +87,10 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
                     "didSpin": false
                 });
+                setDidSpin(false)
             }
         }
-    }, [gameState])
+    }, [gameState?.currentTurn])
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
