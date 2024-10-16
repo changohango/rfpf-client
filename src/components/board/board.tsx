@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
-import { db } from "../../firebase";
+import { db, handleTransaction } from "../../firebase";
 import Json from "../../assets/json/properties.json"
 import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
 import classNames from "classnames";
 import PropertyModal from "./propertyModal";
+import { boardActions } from "./boardActions";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -82,17 +83,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     })
 
     useEffect(() => {
-        if (gameState && gameState["gameStarted"]) {
-            if (gameState["turnOrder"][gameState["currentTurn"]] == currentUser.uid) {
-                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), {
-                    "didSpin": false
-                });
-                setDidSpin(false)
-            }
-        }
-    }, [gameState?.currentTurn])
-
-    useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
         onValue(query, (snapshot) => {
             const data = snapshot.val();
@@ -134,7 +124,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 }
             }
             setDisplayPieces(newDisplayPieces)
-            console.log(newDisplayPieces)
         })
     }, []);
 
@@ -158,7 +147,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         setPurchasedProperty(currentModal)
     }
 
-    function getRandomSpin(min: number, max: number) {
+    function handleSpin(min: number, max: number) {
         min = Math.ceil(min);
         max = Math.floor(max);
         const result = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -171,6 +160,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         var newBoardSpace = 0
                         if (snapshot.val() + result > 31) {
                             newBoardSpace = (snapshot.val() + result) % 32
+                            console.log("passed start")
+                            handleTransaction(gameId, currentUser.uid, 200, 0)
                         } else {
                             newBoardSpace = snapshot.val() + result;
                         }
@@ -182,24 +173,21 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             }
                         }
                         if (match !== "") {
-                            if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
+                            if (properties[match].owner !== currentUser.uid) {
                                 console.log(currentUser.uid + " paying " + match + " " + properties[match].rentDue)
-                                const newBal = playerBalance - properties[match].rentDue
-                                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": newBal })
-                                get(ref(db, "games/" + gameId + "/players/" + properties[match].owner + "/balance")).then((snapshot) => {
-                                    var ownerBal = 0
-                                    if (snapshot.exists()) {
-                                        ownerBal = snapshot.val() + properties[match].rentDue
-                                    }
-                                    update(ref(db, "games/" + gameId + "/players/" + properties[match].owner), { "balance": ownerBal })
-                                })
+                                handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
+                                handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
+                            } else {
+                                console.log("Property available for purchase");
                             }
+                        } else {                            
+                            boardActions(gameId, currentUser.uid, newBoardSpace)
                         }
                     }
                 })
             }
         } else {
-            getRandomSpin(min, max)
+            handleSpin(min, max)
         }
     }
 
@@ -212,7 +200,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
-        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false })
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false})
     }
 
     function startGame() {
@@ -254,7 +242,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 <img src={boardArt('./spinnerBase.svg')} />
                 <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')} />
                 <div className="text-center">
-                    {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && !didSpin) && <Button className="my-3" onClick={() => getRandomSpin(1, 9)}>Spin</Button>}
+                    {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && !didSpin) && <Button className="my-3" onClick={() => handleSpin(1, 9)}>Spin</Button>}
                     {spinnerResult === 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
