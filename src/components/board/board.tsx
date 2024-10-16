@@ -171,7 +171,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             } else {
                                 console.log("Property available for purchase");
                             }
-                        } else {                            
+                        } else {
                             boardActions(gameId, currentUser.uid, newBoardSpace)
                         }
                     }
@@ -191,7 +191,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
-        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false})
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false })
     }
 
     function startGame() {
@@ -225,10 +225,24 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
-                <div className="pointer" key={boardSpace.id}>
-                    <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
-                </div>
-            ))}
+                <>
+                    <div className="pointer" key={boardSpace.id}>
+                        {boardSpace.isProperty ?
+                            <>
+                                <div className={boardSpace.name + " " + properties[boardSpace.name].upgradeStatus}>
+                                    <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
+                                </div>
+                                <div className={boardSpace.name + "-diag " + properties[boardSpace.name].upgradeStatus} >
+                                </div>
+                            </> :
+                            <div className={boardSpace.name}>
+                                <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
+                            </div>
+                        }
+                    </div >
+                </>
+            ))
+            }
             <div id="spinnerBase">
                 <img src={boardArt('./spinnerBase.svg')} />
                 <img className={conditionalStyles} key={spinnerResult} src={boardArt('./spinner.svg')} />
@@ -237,30 +251,36 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     {spinnerResult === 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
-            {gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && <div id="turnNotification">
-                <h3>It is your turn!</h3>
-            </div>}
+            {
+                gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && <div id="turnNotification">
+                    <h3>It is your turn!</h3>
+                </div>
+            }
             <div id="startGame">
                 {(!gameState["gameStarted"] && gameState["gameOwner"] === currentUser.uid) && <Button onClick={() => startGame()}>Start Game!</Button>}
                 {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && didSpin) && <Button onClick={() => endTurn()}>End Turn</Button>}
             </div>
-            {show && <PropertyModal
-                loggedInUser={currentUser}
-                show={show}
-                selectedGame={gameId}
-                handleClose={handleClose}
-                properties={properties}
-                currentModal={currentModal}
-                playerBalance={playerBalance}
-                handlePurchase={handlePurchase}
-                gameState={gameState}
-                boardSpace={boardSpace}
-                didSpin={didSpin} />}
-            {displayPieces && displayPieces.map((piece: any) => (
-                <>
-                    <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
-                </>
-            ))}
+            {
+                show && <PropertyModal
+                    loggedInUser={currentUser}
+                    show={show}
+                    selectedGame={gameId}
+                    handleClose={handleClose}
+                    properties={properties}
+                    currentModal={currentModal}
+                    playerBalance={playerBalance}
+                    handlePurchase={handlePurchase}
+                    gameState={gameState}
+                    boardSpace={boardSpace}
+                    didSpin={didSpin} />
+            }
+            {
+                displayPieces && displayPieces.map((piece: any) => (
+                    <>
+                        <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
+                    </>
+                ))
+            }
         </>
     )
     return (
