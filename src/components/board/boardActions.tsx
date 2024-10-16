@@ -1,6 +1,6 @@
 import { getNumProperties, handleTransaction } from "../../firebase";
 
-export function boardActions(selectedGame: any, uid: any, boardNum: number) {
+export function boardActions(selectedGame: any, uid: any, boardNum: number, players: any) {
     switch(boardNum) {
         case 3:
         case 8:
@@ -19,7 +19,7 @@ export function boardActions(selectedGame: any, uid: any, boardNum: number) {
             break;
         case 11:
             //Income tax
-            const numProperties = getNumProperties(selectedGame, uid)
+            const numProperties = Object.keys(players[uid].properties).length
             handleTransaction(selectedGame, uid, numProperties*200, 1)
             break;
         case 12:

@@ -43,6 +43,7 @@ export function getNumProperties(selectedGame: any, uid: any) {
   var numProperties = 0;
   get(ref(db, "games/" + selectedGame + "/players/" + uid + "/properties")).then((snapshot) => {
     if (snapshot.exists()) {
+      console.log(Object.keys(snapshot.val()).length)
       numProperties = Object.keys(snapshot.val()).length
     }
   })

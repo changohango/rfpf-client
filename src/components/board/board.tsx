@@ -164,15 +164,15 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             }
                         }
                         if (match !== "") {
-                            if (properties[match].owner !== currentUser.uid) {
-                                console.log(currentUser.uid + " paying " + match + " " + properties[match].rentDue)
+                            if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
+                                console.log(currentUser.uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
                                 handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
                                 handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
-                            } else {
+                            } else if (properties[match].owner === "None") {
                                 console.log("Property available for purchase");
                             }
                         } else {
-                            boardActions(gameId, currentUser.uid, newBoardSpace)
+                            boardActions(gameId, currentUser.uid, newBoardSpace, players)
                         }
                     }
                 })
