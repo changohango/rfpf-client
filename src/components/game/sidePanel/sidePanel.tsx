@@ -10,8 +10,11 @@ import OtherPlayerModal from "./otherPlayerModal";
 const images = require.context('../../../assets/icons', true);
 
 export function getUpgradeColor(upgradeStatus: any) {
-    if (upgradeStatus === "plow")
+    console.log(upgradeStatus)
+    if (upgradeStatus === "plow") {
+        console.log("returning plow")
         return "#ff0000"
+    }
     else if (upgradeStatus === "fertilize")
         return "#ded00d"
     else if (upgradeStatus === "plant")

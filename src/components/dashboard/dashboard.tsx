@@ -73,7 +73,14 @@ function Dashboard({ loggedInUser }: any) {
                     const snapshot = await get(usersRef);
                     const gameKey = Object.keys(snapshot.val())[0];
                     const includeLoggedInUser: any = {}
-                    includeLoggedInUser[loggedInUser.uid] = { email: loggedInUser.email, name: loggedInUser.displayName, balance: 25000, boardSpace: 0, didSpin: false, didUpgrade: false }
+                    includeLoggedInUser[loggedInUser.uid] = { 
+                        email: loggedInUser.email, 
+                        name: loggedInUser.displayName, 
+                        balance: 25000, 
+                        boardSpace: 0, 
+                        didSpin: false, 
+                        didUpgrade: false,
+                        isOut: false}
                     update(ref(db, "games/" + gameKey + "/players"), includeLoggedInUser)
                 } else {
                     setGameFound(false)

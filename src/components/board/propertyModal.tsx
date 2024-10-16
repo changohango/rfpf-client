@@ -88,7 +88,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                     </Container>
                 </Modal.Body>
                 <Modal.Footer>
-                    {(properties[currentModal].owner === "None" && properties[currentModal].price < playerBalance && handlePurchase !== "None" && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && boardSpace === properties[currentModal].boardNum && didSpin) ?
+                    {boardSpace && (properties[currentModal].owner === "None" && properties[currentModal].price < playerBalance && handlePurchase !== "None" && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && boardSpace === properties[currentModal].boardNum && didSpin) ?
                         <Button variant="primary" onClick={() => handlePurchase(properties[currentModal].price)}>Purchase</Button> :
                         <Button disabled variant="primary">Purchase</Button>}
                     <Button variant="secondary" onClick={handleClose}>

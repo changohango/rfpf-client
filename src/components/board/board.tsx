@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import './board.css';
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Toast } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
 import { db, handleTransaction } from "../../firebase";
 import Json from "../../assets/json/properties.json"
@@ -8,6 +8,7 @@ import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } fr
 import classNames from "classnames";
 import PropertyModal from "./propertyModal";
 import { boardActions } from "./boardActions";
+import { getUpgradeColor } from "../game/sidePanel/sidePanel";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -67,6 +68,10 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [purchasedProperty, setPurchasedProperty] = useState<any>();
     const [boardSpace, setBoardSpace] = useState<any>();
     const [displayPieces, setDisplayPieces] = useState<any>();
+    const [showToast, setShowToast] = useState<any>(false);
+    const [toastDetails, setToastDetails] = useState<any>();
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [upgradeColor, setUpgradeColor] = useState<any>();
 
     const conditionalStyles = classNames("spinner", {
         "noAnimation": spinnerResult === 0,
@@ -80,6 +85,21 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         "animation8": spinnerResult === 8,
         "line": spinnerResult === 9
     })
+
+    useEffect(() => {
+        const handleMouseMove = (event: any) => {
+            setMousePosition({
+                x: event.clientX,
+                y: event.clientY
+            });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
@@ -222,6 +242,16 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         update(ref(db, "games/" + gameId + "/gameState/"), newGameState)
     }
 
+    function handleShowToast(boardSpace: any, upgradeStatus: any) {
+        setShowToast(true)
+        setToastDetails(boardSpace)
+        if (upgradeStatus === "None") {
+            setUpgradeColor(properties[boardSpace].color)
+            return
+        }
+        setUpgradeColor(getUpgradeColor(upgradeStatus))
+    }
+
     if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
@@ -230,7 +260,13 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         {boardSpace.isProperty ?
                             <>
                                 <div className={boardSpace.name + " " + properties[boardSpace.name].upgradeStatus}>
-                                    <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
+                                    <img
+                                        src={boardArt(`./${boardSpace.name}.svg`)}
+                                        id={boardSpace.name} alt={boardSpace.name}
+                                        onClick={() => handleShow(boardSpace)}
+                                        onMouseEnter={() => handleShowToast(boardSpace.name, properties[boardSpace.name].upgradeStatus)}
+                                        onMouseLeave={() => setShowToast(false)}
+                                    ></img>
                                 </div>
                                 <div className={boardSpace.name + "-diag " + properties[boardSpace.name].upgradeStatus} >
                                 </div>
@@ -260,6 +296,21 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 {(!gameState["gameStarted"] && gameState["gameOwner"] === currentUser.uid) && <Button onClick={() => startGame()}>Start Game!</Button>}
                 {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && didSpin) && <Button onClick={() => endTurn()}>End Turn</Button>}
             </div>
+            {toastDetails && <Toast show={showToast} style={{
+                position: 'absolute',
+                top: mousePosition.y + 10,
+                left: mousePosition.x + 10,
+                zIndex: 9999
+            }}>
+                <Toast.Header closeButton={false} style={{
+                    background: properties[toastDetails].color
+                }}>
+
+                    <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+                    <strong className="me-auto">{properties[toastDetails].name}</strong>
+                </Toast.Header>
+                <Toast.Body>Owned By: {properties[toastDetails].owner} // Upgrade Status: {properties[toastDetails].upgradeStatus} </Toast.Body>
+            </Toast>}
             {
                 show && <PropertyModal
                     loggedInUser={currentUser}
