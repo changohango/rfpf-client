@@ -59,12 +59,11 @@ export interface BoardProps {
     [key: string]: Property;
 }
 
-function Board({ gameId, currentUser, properties, playerBalance, gameState, players }: any) {
+function Board({ gameId, currentUser, properties, playerBalance, gameState, players, didSpin }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [show, setShow] = useState(false);
     const [boardState, setBoardState] = useState(Json)
     const [spinnerResult, setSpinnerResult] = useState(0)
-    const [didSpin, setDidSpin] = useState<any>(false);
     const [purchasedProperty, setPurchasedProperty] = useState<any>();
     const [boardSpace, setBoardSpace] = useState<any>();
     const [displayPieces, setDisplayPieces] = useState<any>();
@@ -95,14 +94,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 setSpinnerResult(data);
             }
         });
-
-        const didSpinQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/didSpin");
-        onValue(didSpinQuery, (snapshot) => {
-            const data = snapshot.val();
-            if (snapshot.exists()) {
-                setDidSpin(data);
-            }
-        })
 
         const boardSpaceQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/boardSpace");
         onValue(boardSpaceQuery, (snapshot) => {

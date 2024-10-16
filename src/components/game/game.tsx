@@ -10,7 +10,8 @@ function Game({selectedGame, loggedInUser}: any) {
     const [properties, setProperties] = useState<any>(Json)
     const [playerBalance, setPlayerBalance] = useState();
     const [gameState, setGameState] = useState();
-    const [players, setPlayers] = useState();
+    const [players, setPlayers] = useState<any>({});
+    const [didSpin, setDidSpin] = useState<any>(false);
     
     useEffect(() => {
         if (selectedGame) {
@@ -21,6 +22,15 @@ function Game({selectedGame, loggedInUser}: any) {
                 }
             });
         }
+
+        const didSpinQuery = ref(db, "games/" + selectedGame + "/players/" + loggedInUser.uid + "/didSpin");
+        onValue(didSpinQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setDidSpin(data);
+            }
+        })
+
         const query = ref(db, "games/" + selectedGame);
         onValue(query, (snapshot) => {
             const data = snapshot.val();
@@ -45,12 +55,14 @@ function Game({selectedGame, loggedInUser}: any) {
     }, []);
 
     
-    return (
+    if (players) { return (
         <>
-            <Board gameId={selectedGame} currentUser={loggedInUser} properties={properties} playerBalance={playerBalance} gameState={gameState} players={players} />
-            <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} gameState={gameState} players={players} />
+            <Board gameId={selectedGame} currentUser={loggedInUser} properties={properties} playerBalance={playerBalance} gameState={gameState} players={players} didSpin={didSpin} />
+            <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} gameState={gameState} players={players} didSpin={didSpin} />
         </>
-    )
+    ) } else {
+        return <h1>Loading...</h1>
+    }
 }
 
 export default Game;

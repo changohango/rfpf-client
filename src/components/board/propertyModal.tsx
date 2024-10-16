@@ -61,7 +61,12 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="">Fertilize: {properties[currentModal].fertilize}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "plow" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance)}>Fertilize</Button>}
+                                {(properties[currentModal].upgradeStatus === "plow" && 
+                                    loggedInUser.uid === properties[currentModal].owner && 
+                                    !didUpgrade && 
+                                    !properties[currentModal].justPurchased &&
+                                     gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
+                                      !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance)}>Fertilize</Button>}
                             </Col>
                         </Row>
                         <Row>
