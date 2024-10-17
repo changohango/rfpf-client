@@ -129,9 +129,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             var newDisplayPieces = []
             if (snapshot.exists()) {
                 for (var i in Object.keys(data)) {
-                    var newObj: any = {}
-                    newObj[Object.keys(data)[i]] = { "boardSpace": data[Object.keys(data)[i]].boardSpace, "color": data[Object.keys(data)[i]].tractorColor }
-                    newDisplayPieces.push(newObj)
+                    if (!data[Object.keys(data)[i]].isOut) {
+                        var newObj: any = {}
+                        newObj[Object.keys(data)[i]] = { "boardSpace": data[Object.keys(data)[i]].boardSpace, "color": data[Object.keys(data)[i]].tractorColor }
+                        newDisplayPieces.push(newObj)
+                    }
                 }
             }
             setDisplayPieces(newDisplayPieces)
@@ -203,7 +205,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     }
 
     function endTurn() {
-        if (gameState["currentTurn"] + 1 > Object.keys(players).length - 1) {
+        if (gameState["currentTurn"] + 1 > Object.keys(gameState.turnOrder).length - 1) {
             update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": 0 })
         } else {
             update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": gameState["currentTurn"] + 1 })
@@ -218,6 +220,16 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         const numPlayers = Object.keys(players).length
         var shuffle: any = Object.keys(players)
         var currentIndex = numPlayers
+
+        const tractorColors = ["blue", "red", "green", "brown", "yellow", "black"]
+
+        for (var i in Object.keys(players)) {
+            const randIndex = Math.floor(Math.random() * tractorColors.length)
+            var tractorColor = tractorColors[randIndex];
+            players[Object.keys(players)[i]].tractorColor = tractorColor
+            tractorColors.splice(randIndex, 1);
+        }
+        update(ref(db, "games/" + gameId + "/players"), players)
 
         while (currentIndex != 0) {
 
@@ -309,7 +321,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                     <strong className="me-auto">{properties[toastDetails].name}</strong>
                 </Toast.Header>
-                <Toast.Body>Owned By: {properties[toastDetails].owner} // Upgrade Status: {properties[toastDetails].upgradeStatus} </Toast.Body>
+                <Toast.Body>{properties[toastDetails].owner !== "None" ? "Owned By: " + players[properties[toastDetails].owner].name : "Not Owned"} {properties[toastDetails].upgradeStatus !== "None"  && "// Upgrade Status: " + properties[toastDetails].upgradeStatus} </Toast.Body>
             </Toast>}
             {
                 show && <PropertyModal
@@ -323,7 +335,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     handlePurchase={handlePurchase}
                     gameState={gameState}
                     boardSpace={boardSpace}
-                    didSpin={didSpin} />
+                    didSpin={didSpin}
+                    players={players}/>
             }
             {
                 displayPieces && displayPieces.map((piece: any) => (
@@ -334,6 +347,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             }
         </>
     )
+
     return (
         <>
             <h1>test2</h1>

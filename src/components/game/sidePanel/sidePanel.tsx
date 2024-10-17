@@ -23,7 +23,7 @@ export function getUpgradeColor(upgradeStatus: any) {
         return "#10e063"
 }
 
-function SidePanel({ loggedInUser, selectedGame, properties, gameState, didSpin }: any) {
+function SidePanel({ loggedInUser, selectedGame, properties, gameState, didSpin, players }: any) {
     const [currentModal, setCurrentModal] = useState<string>("none")
     const [playerBalance, setPlayerBalance] = useState();
     const [playerNames, setPlayerNames] = useState<any[]>([]);
@@ -141,7 +141,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState, didSpin 
                     ))}
                 </div>}
             </div>}
-            {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} handlePurchase={"None"} gameState={gameState} didSpin={didSpin} />}
+            {show && <PropertyModal loggedInUser={loggedInUser} show={show} selectedGame={selectedGame} handleClose={handleClose} properties={properties} currentModal={currentModal} playerBalance={playerBalance} players={players} handlePurchase={"None"} gameState={gameState} didSpin={didSpin} />}
             {(showOtherPlayerInfo && selectedOtherPlayer) && <OtherPlayerModal show={showOtherPlayerInfo} player={selectedOtherPlayer} handleClose={handleOtherPlayerClose} properties={properties} images={images} />}
         </>
     )

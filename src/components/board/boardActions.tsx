@@ -19,8 +19,12 @@ export function boardActions(selectedGame: any, uid: any, boardNum: number, play
             break;
         case 11:
             //Income tax
-            const numProperties = Object.keys(players[uid].properties).length
-            handleTransaction(selectedGame, uid, numProperties*200, 1)
+            if ("properties" in players[uid]) {
+                const numProperties = Object.keys(players[uid].properties).length
+                handleTransaction(selectedGame, uid, numProperties*200, 1)
+                break;
+            }
+            handleTransaction(selectedGame, uid, 0, 1)
             break;
         case 12:
             //No rent due

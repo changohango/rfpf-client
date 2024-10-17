@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { get, onValue, ref } from "firebase/database";
 const images = require.context('../../assets/icons', true);
 
-function PropertyModal({ show, handleClose, properties, currentModal, playerBalance, handlePurchase, selectedGame, loggedInUser, gameState, boardSpace, didSpin }: any) {
+function PropertyModal({ show, handleClose, properties, currentModal, playerBalance, handlePurchase, selectedGame, loggedInUser, gameState, boardSpace, didSpin, players }: any) {
     const [didUpgrade, setDidUpgrade] = useState<any>();
     const [propertyOwner, setPropertOwner] = useState<any>();
 
@@ -16,20 +16,30 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                 setDidUpgrade(data);
             }
         });
-        getUsername(properties[currentModal].owner)
+
+        const ownerQuery = ref(db, "games/" + selectedGame + "/properties/" + currentModal + "/owner");
+        onValue(ownerQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                console.log(players);
+                if (snapshot.val() !== "None") {
+                    setPropertOwner(players[data].name);
+                }
+            }
+        });
+
     }, []);
 
     function getUsername(ownerId: any) {
+        var returnVal = ""
         if (ownerId !== "None") {
             get(ref(db, "games/" + selectedGame + "/players/" + ownerId + "/name")).then((snapshot) => {
                 if (snapshot.exists()) {
-                    setPropertOwner(snapshot.val())
-                }
-                else {
-                    setPropertOwner("Not Owned")
+                    returnVal = snapshot.val()
                 }
             })
         }
+        return returnVal
     }
 
     return (
