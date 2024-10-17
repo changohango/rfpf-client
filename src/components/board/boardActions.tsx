@@ -50,7 +50,7 @@ export function boardActions(selectedGame: any, uid: any, boardNum: number, play
             break;
         case 31:
             //Tractor Repair - Lose 160
-            handleTransaction(selectedGame, uid, 350, 1)
+            handleTransaction(selectedGame, uid, 160, 1)
             break;
     }
 }
