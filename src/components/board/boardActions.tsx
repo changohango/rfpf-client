@@ -1,4 +1,5 @@
-import { getNumProperties, handleTransaction } from "../../firebase";
+import { ref, update } from "firebase/database";
+import { db, getNumProperties, handleTransaction } from "../../firebase";
 
 export function boardActions(selectedGame: any, uid: any, boardNum: number, players: any) {
     switch(boardNum) {
@@ -28,7 +29,7 @@ export function boardActions(selectedGame: any, uid: any, boardNum: number, play
             break;
         case 12:
             //No rent due
-            break;
+            return "noRentDue"
         case 15:
             //Equipment Auction 2 - Gain 420
             handleTransaction(selectedGame, uid, 420, 0)
@@ -39,7 +40,7 @@ export function boardActions(selectedGame: any, uid: any, boardNum: number, play
             break;
         case 20:
             //Lose Turn
-            break;
+            return "nextTurnLost"
         case 24:
             //Equipment Auction 3 - Lose 500
             handleTransaction(selectedGame, uid, 500, 1)

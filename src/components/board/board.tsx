@@ -73,8 +73,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [showToast, setShowToast] = useState<any>(false);
     const [toastDetails, setToastDetails] = useState<any>();
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [upgradeColor, setUpgradeColor] = useState<any>();
-    const [numProperties, setNumProperties] = useState<any>();
+    const [isNoRentDue, setIsNoRentDue] = useState<any>(false)
+    const [isNextTurnLost, setIsNextTurnLost] = useState<any>(false);
 
     const [play] = useSound(knockSound);
 
@@ -145,6 +145,24 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         })
     }, []);
 
+    useEffect(() => {
+        if (players && gameState) {
+            if (players[currentUser.uid].isNoRentDue && gameState.turnOrder[gameState.currentTurn] === currentUser.uid) {
+                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isNoRentDue": false })
+                setIsNoRentDue(false)
+            }
+            if (players[currentUser.uid].isNextTurnLost && gameState.turnOrder[gameState.currentTurn] === currentUser.uid) {
+                if (gameState["currentTurn"] + 1 > Object.keys(gameState.turnOrder).length - 1) {
+                    update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": 0 })
+                } else {
+                    update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": gameState["currentTurn"] + 1 })
+                }
+                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isNextTurnLost": false })
+                setIsNextTurnLost(false)
+            }
+        }
+    }, [gameState])
+
     const handleClose = () => setShow(false);
 
     function handleShow(boardSpace: BoardSpace) {
@@ -196,9 +214,13 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         }
                         if (match !== "") {
                             if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
-                                console.log(currentUser.uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
-                                handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
-                                handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
+                                if (players[properties[match].owner].isNoRentDue) {
+                                    console.log("no rent due!")
+                                } else {
+                                    console.log(currentUser.uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
+                                    handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
+                                    handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
+                                }
                             } else if (properties[match].owner === "None") {
                                 console.log("Property available for purchase");
                             }
@@ -212,7 +234,14 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                                     play()
                                     break;
                             }
-                            boardActions(gameId, currentUser.uid, newBoardSpace, players)
+                            const boardAction = boardActions(gameId, currentUser.uid, newBoardSpace, players)
+                            if (boardAction === "noRentDue") {
+                                setIsNoRentDue(true)
+                            }
+                            if (boardAction === "nextTurnLost") {
+                                console.log("Next turn being lost")
+                                setIsNextTurnLost(true)
+                            }
                         }
                     }
                 })
@@ -231,7 +260,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
-        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false })
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false, "isNoRentDue": isNoRentDue, "isNextTurnLost": isNextTurnLost })
     }
 
     function startGame() {
@@ -275,11 +304,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     function handleShowToast(boardSpace: any, upgradeStatus: any) {
         setShowToast(true)
         setToastDetails(boardSpace)
-        if (upgradeStatus === "None") {
-            setUpgradeColor(properties[boardSpace].color)
-            return
-        }
-        setUpgradeColor(getUpgradeColor(upgradeStatus))
     }
 
     if (properties && gameState && players) return (
