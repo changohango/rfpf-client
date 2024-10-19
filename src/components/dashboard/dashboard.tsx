@@ -1,6 +1,6 @@
 import Board from "../board/board";
 import { db, handleSignOut } from "../../firebase";
-import { equalTo, get, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
+import { equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Modal } from "react-bootstrap";
 import newGameTemplate from "../../assets/json/newGameTemplate.json"
@@ -41,13 +41,40 @@ function Dashboard({ loggedInUser }: any) {
     const [showAddFriend, setShowAddFriend] = useState(false);
     const [showNewGame, setShowNewGame] = useState(false);
     const [showSearchGame, setShowSearchGame] = useState(false);
-    const [triggerReload, setTriggerReload] = useState(false);
     const [gameFound, setGameFound] = useState(false);
 
     useEffect(() => {
-        getGames()
-        setTriggerReload(false)
-    }, [triggerReload]);
+        const keyQuery = ref(db, "gameKeys/");
+
+        onValue(keyQuery, (snapshot: any) => {
+            if (snapshot.exists()) {
+                const foundGameKeys = Object.keys(snapshot.val())
+                console.log(foundGameKeys)
+                get(ref(db, "games/")).then((res) => {
+                    if (res.exists()) {
+                        const games = res.val()
+                        const matches = []
+                        for (var i = 0; i < foundGameKeys.length; i++) {
+                            if (Object.keys(games[foundGameKeys[i]].players).includes(loggedInUser.uid)) {
+                                matches.push(foundGameKeys[i])
+                            }
+                        }
+                        setGameKeys(matches)
+                    }
+                })
+            }
+        })
+    }, []);
+
+    // useEffect(() => {
+    //     const didSpinQuery = ref(db, "gameKeys/");
+    //     onValue(didSpinQuery, (snapshot) => {
+    //         const data = snapshot.val();
+    //         if (snapshot.exists()) {
+    //             setGameKeys(Object.keys(data));
+    //         }
+    //     })
+    // }, [])
 
     function searchForGame(e: any) {
         e.preventDefault()
@@ -142,8 +169,6 @@ function Dashboard({ loggedInUser }: any) {
         const gameIdObj: any = {}
         gameIdObj[gameRandId] = true
 
-        update(ref(db, "gameKeys/"), obj);
-        update(ref(db, "gameIds"), gameIdObj);
         set(ref(db, "games/" + gameName.value), newGameTemplate).then(() => {
             for (var i in invitedFriends) {
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].balance = 25000;
@@ -159,6 +184,9 @@ function Dashboard({ loggedInUser }: any) {
         }).then(() => {
             update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
             update(ref(db, "games/" + gameName.value + "/gameState"), { "gameOwner": loggedInUser.uid })
+        }).then(() => {
+            update(ref(db, "gameKeys/"), obj);
+            update(ref(db, "gameIds"), gameIdObj);
         })
         handleCloseNewGame()
     }
@@ -237,7 +265,6 @@ function Dashboard({ loggedInUser }: any) {
         setShowNewGame(false)
         setFriendsList([])
         setInvitedFriends([])
-        setTriggerReload(true)
     }
 
     function inviteFriend(index: number) {

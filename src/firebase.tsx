@@ -47,6 +47,7 @@ export function getNumProperties(selectedGame: any, uid: any) {
       numProperties = Object.keys(snapshot.val()).length
     }
   })
+  console.log(numProperties)
   return numProperties
 }
 

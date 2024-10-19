@@ -25,7 +25,6 @@ function Game({ selectedGame, loggedInUser }: any) {
                         var newTurnOrder: any = []
                         var nextTurn = 0
                         for (var i = 0; i < Object.keys(gameState.turnOrder).length; i++) {
-                            console.log(gameState.turnOrder[i])
                             if (gameState.turnOrder[i] === loggedInUser.uid) {
                                 if (i + 1 >= gameState.turnOrder.length) {
                                     nextTurn = 0
@@ -114,7 +113,7 @@ function Game({ selectedGame, loggedInUser }: any) {
                     <h1>Stats</h1>
                     <div className="d-flex">
                         {players && Object.keys(players).map((player: any) => (
-                            <Card className="me-3" style={{ width: "200px" }}>
+                            <Card className="me-3" key={players[player].name} style={{ width: "200px" }}>
                                 <Card.Body>
                                     <Card.Title>{players[player].name}</Card.Title>
                                     Properties Owned: {players[player].properties}

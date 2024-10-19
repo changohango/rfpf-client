@@ -14,7 +14,7 @@ function OtherPlayerModal({ player, show, handleClose, properties, images }: any
                     <p>Balance: {player.balance}</p>
                     {player.properties ? <p>Owned Properties:</p> : <p>No properties owned!</p>}
                     {player.properties && Object.keys(player.properties).map((ownedProperty: any) => (
-                        <ButtonGroup className="me-3">
+                        <ButtonGroup key={properties[player.properties[ownedProperty]].name} className="me-3">
                             {properties[player.properties[ownedProperty]].upgradeStatus !== "None" && <Button className="me-2 propertyButton upgrade border-0" style={{ background: getUpgradeColor(properties[player.properties[ownedProperty]].upgradeStatus) }}></Button>}
                             <Button
                                 className="propertyButton"

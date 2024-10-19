@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal, Toast } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
-import { db, handleTransaction } from "../../firebase";
+import { db, getNumProperties, handleTransaction } from "../../firebase";
 import Json from "../../assets/json/properties.json"
 import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
 import classNames from "classnames";
@@ -72,6 +72,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [toastDetails, setToastDetails] = useState<any>();
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [upgradeColor, setUpgradeColor] = useState<any>();
+    const [numProperties, setNumProperties] = useState<any>();
 
     const conditionalStyles = classNames("spinner", {
         "noAnimation": spinnerResult === 0,
@@ -173,8 +174,12 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         var newBoardSpace = 0
                         if (snapshot.val() + result > 31) {
                             newBoardSpace = (snapshot.val() + result) % 32
-                            console.log("passed start")
-                            handleTransaction(gameId, currentUser.uid, 200, 0)
+                            if (players[currentUser.uid].properties) {
+                                console.log("passed start,  " + Object.keys(players[currentUser.uid].properties).length + " properties owned")
+                                handleTransaction(gameId, currentUser.uid, Object.keys(players[currentUser.uid].properties).length * 50, 0)
+                            } else {
+                                console.log("passed go, no properties owned")
+                            }
                         } else {
                             newBoardSpace = snapshot.val() + result;
                         }
@@ -267,28 +272,26 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
-                <>
-                    <div className="pointer" key={boardSpace.id}>
-                        {boardSpace.isProperty ?
-                            <>
-                                <div className={boardSpace.name + " " + properties[boardSpace.name].upgradeStatus}>
-                                    <img
-                                        src={boardArt(`./${boardSpace.name}.svg`)}
-                                        id={boardSpace.name} alt={boardSpace.name}
-                                        onClick={() => handleShow(boardSpace)}
-                                        onMouseEnter={() => handleShowToast(boardSpace.name, properties[boardSpace.name].upgradeStatus)}
-                                        onMouseLeave={() => setShowToast(false)}
-                                    ></img>
-                                </div>
-                                <div className={boardSpace.name + "-diag " + properties[boardSpace.name].upgradeStatus} >
-                                </div>
-                            </> :
-                            <div className={boardSpace.name}>
-                                <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
+                <div className="pointer" key={boardSpace.id}>
+                    {boardSpace.isProperty ?
+                        <>
+                            <div className={boardSpace.name + " " + properties[boardSpace.name].upgradeStatus}>
+                                <img
+                                    src={boardArt(`./${boardSpace.name}.svg`)}
+                                    id={boardSpace.name} alt={boardSpace.name}
+                                    onClick={() => handleShow(boardSpace)}
+                                    onMouseEnter={() => handleShowToast(boardSpace.name, properties[boardSpace.name].upgradeStatus)}
+                                    onMouseLeave={() => setShowToast(false)}
+                                ></img>
                             </div>
-                        }
-                    </div >
-                </>
+                            <div className={boardSpace.name + "-diag " + properties[boardSpace.name].upgradeStatus} >
+                            </div>
+                        </> :
+                        <div className={boardSpace.name}>
+                            <img src={boardArt(`./${boardSpace.name}.svg`)} id={boardSpace.name} alt={boardSpace.name} onClick={() => handleShow(boardSpace)}></img>
+                        </div>
+                    }
+                </div >
             ))
             }
             <div id="spinnerBase">
@@ -321,7 +324,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                     <strong className="me-auto">{properties[toastDetails].name}</strong>
                 </Toast.Header>
-                <Toast.Body>{properties[toastDetails].owner !== "None" ? "Owned By: " + players[properties[toastDetails].owner].name : "Not Owned"} {properties[toastDetails].upgradeStatus !== "None"  && "// Upgrade Status: " + properties[toastDetails].upgradeStatus} </Toast.Body>
+                <Toast.Body>{properties[toastDetails].owner !== "None" ? "Owned By: " + players[properties[toastDetails].owner].name : "Not Owned"} {properties[toastDetails].upgradeStatus !== "None" && "// Upgrade Status: " + properties[toastDetails].upgradeStatus} </Toast.Body>
             </Toast>}
             {
                 show && <PropertyModal
@@ -336,13 +339,13 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     gameState={gameState}
                     boardSpace={boardSpace}
                     didSpin={didSpin}
-                    players={players}/>
+                    players={players} />
             }
             {
                 displayPieces && displayPieces.map((piece: any) => (
-                    <>
+                    <div key={"tractor" + piece[Object.keys(piece)[0]].color}>
                         <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
-                    </>
+                    </div>
                 ))
             }
         </>

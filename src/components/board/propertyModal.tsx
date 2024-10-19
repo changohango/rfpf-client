@@ -21,7 +21,6 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
         onValue(ownerQuery, (snapshot) => {
             const data = snapshot.val();
             if (snapshot.exists()) {
-                console.log(players);
                 if (snapshot.val() !== "None") {
                     setPropertOwner(players[data].name);
                 }

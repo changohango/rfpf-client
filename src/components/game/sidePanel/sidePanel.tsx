@@ -10,9 +10,7 @@ import OtherPlayerModal from "./otherPlayerModal";
 const images = require.context('../../../assets/icons', true);
 
 export function getUpgradeColor(upgradeStatus: any) {
-    console.log(upgradeStatus)
     if (upgradeStatus === "plow") {
-        console.log("returning plow")
         return "#ff0000"
     }
     else if (upgradeStatus === "fertilize")
@@ -100,7 +98,7 @@ function SidePanel({ loggedInUser, selectedGame, properties, gameState, didSpin,
                 <div>
                     <h3>Your Properties</h3>
                     {ownedProperties && ownedProperties.map((ownedProperty: any) => (
-                        <ButtonGroup className="me-3" onClick={() => handleShow(ownedProperty)}>
+                        <ButtonGroup key={properties[ownedProperty].name} className="me-3" onClick={() => handleShow(ownedProperty)}>
                             {properties[ownedProperty].upgradeStatus !== "None" && <Button className="mt-3 me-2 propertyButton upgrade border-0" style={{ background: getUpgradeColor(properties[ownedProperty].upgradeStatus) }}></Button>}
                             <Button
                                 className="mt-3 propertyButton"
