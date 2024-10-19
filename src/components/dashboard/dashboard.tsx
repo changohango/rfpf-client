@@ -1,6 +1,6 @@
 import Board from "../board/board";
 import { db, handleSignOut } from "../../firebase";
-import { equalTo, get, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
+import { equalTo, get, onChildAdded, onValue, orderByChild, orderByKey, query, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { Button, Card, Form, Modal } from "react-bootstrap";
 import newGameTemplate from "../../assets/json/newGameTemplate.json"
@@ -62,8 +62,11 @@ function Dashboard({ loggedInUser }: any) {
                         setGameKeys(matches)
                     }
                 })
+            } else {
+                setGameKeys([])
             }
         })
+
     }, []);
 
     // useEffect(() => {
