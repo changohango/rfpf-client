@@ -72,6 +72,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [boardSpace, setBoardSpace] = useState<any>();
     const [displayPieces, setDisplayPieces] = useState<any>();
     const [showToast, setShowToast] = useState<any>(false);
+    const [showPlayerToast, setShowPlayerToast] = useState<any>(false);
+    const [playerToastDetails, setPlayerToastDetails] = useState<any>(false);
     const [toastDetails, setToastDetails] = useState<any>();
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isNoRentDue, setIsNoRentDue] = useState<any>(false)
@@ -150,7 +152,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 for (var i in Object.keys(data)) {
                     if (!data[Object.keys(data)[i]].isOut) {
                         var newObj: any = {}
-                        newObj[Object.keys(data)[i]] = { "boardSpace": data[Object.keys(data)[i]].boardSpace, "color": data[Object.keys(data)[i]].tractorColor }
+                        newObj[Object.keys(data)[i]] = { name: data[Object.keys(data)[i]].name, "boardSpace": data[Object.keys(data)[i]].boardSpace, "color": data[Object.keys(data)[i]].tractorColor }
                         newDisplayPieces.push(newObj)
                     }
                 }
@@ -334,6 +336,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         setToastDetails(boardSpace)
     }
 
+    function handleShowPlayerToast(name: any) {
+        setShowPlayerToast(true)
+        setPlayerToastDetails(name)
+    }
+
     if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
@@ -391,6 +398,14 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 </Toast.Header>
                 <Toast.Body>{properties[toastDetails].owner !== "None" ? "Owned By: " + players[properties[toastDetails].owner].name : "Not Owned"} {properties[toastDetails].upgradeStatus !== "None" && "// Upgrade Status: " + properties[toastDetails].upgradeStatus} </Toast.Body>
             </Toast>}
+            {playerToastDetails && <Toast show={showPlayerToast} style={{
+                position: 'absolute',
+                top: mousePosition.y + 10,
+                left: mousePosition.x + 10,
+                zIndex: 9999,
+            }}>
+                <Toast.Body>{playerToastDetails}</Toast.Body>
+            </Toast>}
             {
                 show && <PropertyModal
                     loggedInUser={currentUser}
@@ -407,12 +422,35 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     players={players} />
             }
             {
-                displayPieces && displayPieces.length > 0 && displayPieces.map((piece: any, i: any) => (
-                    <div key={"tractor" + i}>
-                        <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
-                    </div>
+                displayPieces && displayPieces.length > 0 &&
+                Object.entries(displayPieces.reduce((acc: Record<string, any[]>, piece: any) => {
+                    const boardSpace = piece[Object.keys(piece)[0]].boardSpace;
+                    if (!acc[boardSpace]) acc[boardSpace] = [];
+                    acc[boardSpace].push(piece);
+                    return acc;
+                }, {})).map(([boardSpace, piecesAtSpot]) => (
+                    (piecesAtSpot as any[]).map((piece: any, i: number) => (
+                        <div id={`boardSpace${boardSpace}`}>
+                            <img
+                                onMouseEnter={() => handleShowPlayerToast(piece[Object.keys(piece)[0]].name)}
+                                onMouseLeave={() => setShowPlayerToast(false)}
+                                key={`tractor${boardSpace}-${i}`}
+                                src={boardArt(`./gamePiece.svg`)}
+                                className={`gamePiece gamePiece-${piece[Object.keys(piece)[0]].color}`}
+                                alt={`tractor${boardSpace}`}
+                                style={{
+                                    position: 'relative',
+                                    top: i * 10 + 'px',
+                                    left: i * 5 + 'px',
+                                    zIndex: i + 10,
+                                }}
+                            />
+                        </div>
+                    ))
                 ))
             }
+
+
         </>
     )
 

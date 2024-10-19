@@ -76,7 +76,7 @@
 .scotts {
   box-sizing: content-box;
   position: absolute;
-  height:144px;
+  height: 144px;
   width: 89px;
   top: 39px;
   left: 403px;
@@ -90,7 +90,7 @@
 .lavenders {
   box-sizing: content-box;
   position: absolute;
-  height:144px;
+  height: 144px;
   width: 89px;
   top: 39px;
   left: 490px;
@@ -171,7 +171,7 @@
 .robbins {
   box-sizing: content-box;
   position: absolute;
-  height:89px;
+  height: 89px;
   width: 133px;
   top: 396px;
   left: 794px;
@@ -186,7 +186,7 @@
 .smiths {
   box-sizing: content-box;
   position: absolute;
-  height:89px;
+  height: 89px;
   width: 133px;
   top: 483px;
   left: 794px;
@@ -260,14 +260,14 @@
 
 #landers {
   height: 134px;
-  top:10px;
+  top: 10px;
   position: relative;
 }
 
 .landers {
   box-sizing: content-box;
   position: absolute;
-  height:144px;
+  height: 144px;
   width: 89px;
   top: 785px;
   left: 491px;
@@ -282,7 +282,7 @@
 .vernons {
   box-sizing: content-box;
   position: absolute;
-  height:144px;
+  height: 144px;
   width: 89px;
   top: 785px;
   left: 404px;
@@ -356,14 +356,14 @@
 
 #hendersons {
   width: 134px;
-  right:10px;
+  right: 10px;
   position: relative;
 }
 
 .hendersons {
   box-sizing: content-box;
   position: absolute;
-  height:89px;
+  height: 89px;
   width: 134px;
   top: 486px;
   left: 54px;
@@ -379,7 +379,7 @@
 .lewis {
   box-sizing: content-box;
   position: absolute;
-  height:89px;
+  height: 89px;
   width: 134px;
   top: 399px;
   left: 54px;
@@ -566,41 +566,63 @@
 
 .gamePiece {
   height: 50px;
-  fill: none;
-  stroke: #646464;
-  stroke-width: 100px;
-  stroke-dasharray: 2,2;
-  stroke-linejoin: round;
 }
 
 .gamePiece-blue {
-  filter: invert(9%) sepia(32%) saturate(6208%) hue-rotate(228deg) brightness(102%) contrast(121%);
+  filter: invert(45%) sepia(39%) saturate(3483%) hue-rotate(164deg) brightness(98%) contrast(101%)
+          drop-shadow(-1px 0 0 black)  /* Left */
+          drop-shadow(1px 0 0 black)   /* Right */
+          drop-shadow(0 -1px 0 black)  /* Top */
+          drop-shadow(0 1px 0 black);  /* Bottom */
 }
 
 .gamePiece-red {
-  filter: invert(6%) sepia(95%) saturate(7422%) hue-rotate(25deg) brightness(94%) contrast(119%);
+  filter: invert(26%) sepia(100%) saturate(7449%) hue-rotate(4deg) brightness(98%) contrast(122%)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(1px 0 0 black)
+          drop-shadow(0 -1px 0 black)
+          drop-shadow(0 1px 0 black);
 }
 
 .gamePiece-green {
-  filter: invert(19%) sepia(94%) saturate(1178%) hue-rotate(69deg) brightness(102%) contrast(102%);
+  filter: invert(62%) sepia(33%) saturate(6481%) hue-rotate(77deg) brightness(122%) contrast(123%)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(1px 0 0 black)
+          drop-shadow(0 -1px 0 black)
+          drop-shadow(0 1px 0 black);
 }
 
 .gamePiece-brown {
-  filter: invert(22%) sepia(99%) saturate(2011%) hue-rotate(21deg) brightness(91%) contrast(94%);
+  filter: invert(23%) sepia(71%) saturate(3269%) hue-rotate(288deg) brightness(107%) contrast(144%)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(1px 0 0 black)
+          drop-shadow(0 -1px 0 black)
+          drop-shadow(0 1px 0 black);
 }
 
 .gamePiece-yellow {
-  filter: invert(75%) sepia(27%) saturate(1500%) hue-rotate(4deg) brightness(95%) contrast(96%);
+  filter: invert(81%) sepia(73%) saturate(1528%) hue-rotate(351deg) brightness(97%) contrast(105%)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(1px 0 0 black)
+          drop-shadow(0 -1px 0 black)
+          drop-shadow(0 1px 0 black);
 }
 
 .gamePiece-black {
-  filter: invert(0%) sepia(4%) saturate(0%) hue-rotate(324deg) brightness(102%) contrast(105%);
+  filter: invert(35%) sepia(70%) saturate(2594%) hue-rotate(0deg) brightness(101%) contrast(108%)
+          drop-shadow(-1px 0 0 black)
+          drop-shadow(1px 0 0 black)
+          drop-shadow(0 -1px 0 black)
+          drop-shadow(0 1px 0 black);
 }
+
+
+
 
 #boardSpace0 {
   position: absolute;
-  top: 870px;
-  left: 600px;
+  top: 830px;
+  left: 595px;
 }
 
 #boardSpace1 {
@@ -696,7 +718,7 @@
 #boardSpace16 {
   position: absolute;
   top: 50px;
-  left: 350px;
+  left: 330px;
 }
 
 #boardSpace17 {
