@@ -51,7 +51,7 @@ export function getNumProperties(selectedGame: any, uid: any) {
   return numProperties
 }
 
-export function upgradeProperty(selectedGame: any, property: any, upgradeStatus: any, playerBalance: any) {
+export function upgradeProperty(selectedGame: any, property: any, upgradeStatus: any, playerBalance: any, players: any, properties: any) {
   get(ref(db, "games/" + selectedGame + "/properties/" + property)).then((snapshot) => {
     const newObj = snapshot.val();
     newObj.upgradeStatus = upgradeStatus
@@ -64,6 +64,10 @@ export function upgradeProperty(selectedGame: any, property: any, upgradeStatus:
     update(ref(db, "games/" + selectedGame + "/properties/" + property), newObj)
     update(ref(db, "games/" + selectedGame + "/players/" + auth.currentUser?.uid), { didUpgrade: true })
     set(ref(db, "games/" + selectedGame + "/players/" + auth.currentUser?.uid + "/balance"), newBal)
+    if (auth.currentUser) {
+      const message: any = (players[auth.currentUser.uid].name + " has " + upgradeStatus + "ed " + properties[property].name + " for " + snapshot.val()[upgradeStatus])
+      update(ref(db, "games/" + selectedGame + "/gameState"), { "message": message })
+    }
   })
 }
 

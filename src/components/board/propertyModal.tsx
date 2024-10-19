@@ -62,7 +62,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="mt-1">Plow: {properties[currentModal].plow}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "None" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plow", playerBalance)}>Plow</Button>}
+                                {(properties[currentModal].upgradeStatus === "None" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plow", playerBalance, players, properties)}>Plow</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -75,7 +75,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                     !didUpgrade && 
                                     !properties[currentModal].justPurchased &&
                                      gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
-                                      !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance)}>Fertilize</Button>}
+                                      !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance, players, properties)}>Fertilize</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -83,7 +83,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="">Plant: {properties[currentModal].plant}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "fertilize" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plant", playerBalance)}>Plant</Button>}
+                                {(properties[currentModal].upgradeStatus === "fertilize" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plant", playerBalance, players, properties)}>Plant</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -91,7 +91,7 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="mb-1">Gather: {properties[currentModal].gather}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "plant" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "gather", playerBalance)}>Gather</Button>}
+                                {(properties[currentModal].upgradeStatus === "plant" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "gather", playerBalance, players, properties)}>Gather</Button>}
                             </Col>
                         </Row>
                     </Container>

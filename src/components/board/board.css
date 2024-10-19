@@ -493,7 +493,8 @@
 #turnNotification {
   position: absolute;
   top: 250px;
-  left: 410px;
+  left: 360px;
+  width: 300px;
 }
 
 .line {

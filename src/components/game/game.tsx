@@ -36,11 +36,12 @@ function Game({ selectedGame, loggedInUser }: any) {
                             }
                         }
                         if (players[loggedInUser.uid].properties) {
-                            for (var j in Object.keys(players[loggedInUser.uid].properties)) {
-                                properties[j].owner = "None"
-                                properties[j].upgradeStaus = "None"
-                                properties[j].rentDue = properties[j].displayRent
-                            }
+                            console.log(players[loggedInUser.uid].properties)
+                            Object.keys(players[loggedInUser.uid].properties).forEach((key) => {
+                                properties[players[loggedInUser.uid].properties[key]].owner = "None"
+                                properties[players[loggedInUser.uid].properties[key]].upgradeStaus = "None"
+                                properties[players[loggedInUser.uid].properties[key]].rentDue = properties[players[loggedInUser.uid].properties[key]].displayRent
+                            })
                         }
                         players[loggedInUser.uid].properties = {}
                         update(ref(db, "games/" + selectedGame + "/properties"), properties)

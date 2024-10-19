@@ -11,6 +11,7 @@ import { boardActions } from "./boardActions";
 import { getUpgradeColor } from "../game/sidePanel/sidePanel";
 import useSound from "use-sound";
 import knockSound from '../../assets/sounds/knock.mp3'
+import { getMessage } from "./messages";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -75,6 +76,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isNoRentDue, setIsNoRentDue] = useState<any>(false)
     const [isNextTurnLost, setIsNextTurnLost] = useState<any>(false);
+    const [messageDisplay, setMessageDisplay] = useState<any>("")
 
     const [play] = useSound(knockSound);
 
@@ -105,6 +107,18 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, []);
+
+    useEffect(() => {
+        if (gameState) {
+            setMessageDisplay(gameState.message);
+        }
+    }, [gameState]);
+
+    useEffect(() => {
+        if (gameState && players && gameState.gameStarted && gameState.turnOrder[gameState.currentTurn] == currentUser.uid && !players[currentUser.uid].didSpin && !players[currentUser.uid].didUpgrade) {
+            setMessage("It is " + players[currentUser.uid].name + "'s turn!")
+        }
+    })
 
     useEffect(() => {
         const query = ref(db, "games/" + gameId + "/gameState/spinnerResult");
@@ -165,6 +179,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
 
     const handleClose = () => setShow(false);
 
+    function setMessage(message: any) {
+        if (message)
+            update(ref(db, "games/" + gameId + "/gameState"), { "message": message })
+    }
+
     function handleShow(boardSpace: BoardSpace) {
         if (boardSpace.isProperty) {
             setCurrentModal(boardSpace.name)
@@ -179,6 +198,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         push(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/properties"), currentModal)
         const newBal = playerBalance - price
         set(ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/balance"), newBal)
+        setMessage(players[currentUser.uid].name + " has purchased " + properties[currentModal].name + " for " + price)
         setBoardState({ ...boardState })
         setPurchasedProperty(currentModal)
     }
@@ -198,9 +218,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             newBoardSpace = (snapshot.val() + result) % 32
                             if (players[currentUser.uid].properties) {
                                 console.log("passed start,  " + Object.keys(players[currentUser.uid].properties).length + " properties owned")
+                                setMessage("Passing go! Recieve $50 for every farm owned (" + Object.keys(players[currentUser.uid].properties).length + ")")
                                 handleTransaction(gameId, currentUser.uid, Object.keys(players[currentUser.uid].properties).length * 50, 0)
                             } else {
                                 console.log("passed go, no properties owned")
+                                setMessage("Passing go! No properties owned.")
                             }
                         } else {
                             newBoardSpace = snapshot.val() + result;
@@ -216,13 +238,18 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
                                 if (players[properties[match].owner].isNoRentDue) {
                                     console.log("no rent due!")
+                                    setMessage(players[properties[match].owner].name + " has no rent due!")
                                 } else {
                                     console.log(currentUser.uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
                                     handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
                                     handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
+                                    setMessage(players[currentUser.uid].name + " landed on: " + properties[match].name + " - " + players[currentUser.uid].name + " paying " + players[properties[match].owner].name + " $" + properties[match].rentDue)
                                 }
                             } else if (properties[match].owner === "None") {
                                 console.log("Property available for purchase");
+                                setMessage(properties[match].name + " available for purchase!")
+                            } else if (properties[match].owner === currentUser.uid) {
+                                setMessage(players[currentUser.uid].name + " landed on: " + properties[match].name + " - own property.")
                             }
                         } else {
                             switch (newBoardSpace) {
@@ -235,6 +262,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                                     break;
                             }
                             const boardAction = boardActions(gameId, currentUser.uid, newBoardSpace, players)
+                            setMessage(getMessage(gameId, currentUser.uid, newBoardSpace, players))
                             if (boardAction === "noRentDue") {
                                 setIsNoRentDue(true)
                             }
@@ -340,8 +368,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 </div>
             </div>
             {
-                gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && <div id="turnNotification">
-                    <h3>It is your turn!</h3>
+                <div className="text-center" id="turnNotification">
+                    <h3 className="text-center">{messageDisplay}</h3>
                 </div>
             }
             <div id="startGame">

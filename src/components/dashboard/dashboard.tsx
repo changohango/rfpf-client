@@ -192,7 +192,7 @@ function Dashboard({ loggedInUser }: any) {
             update(ref(db, "games/" + gameName.value + "/players"), includeLoggedInUser)
         }).then(() => {
             update(ref(db, "games/" + gameName.value), { gameId: gameRandId })
-            update(ref(db, "games/" + gameName.value + "/gameState"), { "gameOwner": loggedInUser.uid })
+            update(ref(db, "games/" + gameName.value + "/gameState"), { "gameOwner": loggedInUser.uid, "message": "Start game?" })
         }).then(() => {
             update(ref(db, "gameKeys/"), obj);
             update(ref(db, "gameIds"), gameIdObj);
