@@ -9,6 +9,8 @@ import classNames from "classnames";
 import PropertyModal from "./propertyModal";
 import { boardActions } from "./boardActions";
 import { getUpgradeColor } from "../game/sidePanel/sidePanel";
+import useSound from "use-sound";
+import knockSound from '../../assets/sounds/knock.mp3'
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -73,6 +75,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [upgradeColor, setUpgradeColor] = useState<any>();
     const [numProperties, setNumProperties] = useState<any>();
+
+    const [play] = useSound(knockSound);
 
     const conditionalStyles = classNames("spinner", {
         "noAnimation": spinnerResult === 0,
@@ -199,6 +203,15 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                                 console.log("Property available for purchase");
                             }
                         } else {
+                            switch (newBoardSpace) {
+                                case 3:
+                                case 8:
+                                case 16:
+                                case 23:
+                                case 28:
+                                    play()
+                                    break;
+                            }
                             boardActions(gameId, currentUser.uid, newBoardSpace, players)
                         }
                     }
@@ -342,8 +355,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     players={players} />
             }
             {
-                displayPieces && displayPieces.map((piece: any) => (
-                    <div key={"tractor" + piece[Object.keys(piece)[0]].color}>
+                displayPieces && displayPieces.length > 0 && displayPieces.map((piece: any, i: any) => (
+                    <div key={"tractor" + i}>
                         <img src={boardArt(`./gamePiece.svg`)} className={"gamePiece gamePiece-" + piece[Object.keys(piece)[0]].color} id={"boardSpace" + piece[Object.keys(piece)[0]].boardSpace} alt={"tractor" + piece[Object.keys(piece)[0]].boardSpace} />
                     </div>
                 ))
@@ -353,7 +366,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
 
     return (
         <>
-            <h1>test2</h1>
         </>
     )
 }
