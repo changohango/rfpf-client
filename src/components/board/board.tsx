@@ -85,6 +85,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [displayRisk, setDisplayRisk] = useState<boolean>(false);
     const [outstandingBalnce, setOutstandingBalance] = useState<any>(0);
     const [showSell, setShowSell] = useState<any>(false);
+    const [gameCode, setGameCode] = useState<any>("")
 
     const [play] = useSound(knockSound);
 
@@ -155,6 +156,14 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             const data = snapshot.val();
             if (snapshot.exists()) {
                 setShowSell(data);
+            }
+        })
+
+        const gameCodeQuery = ref(db, "games/" + gameId + "/gameId");
+        onValue(gameCodeQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setGameCode(data);
             }
         })
 
@@ -541,6 +550,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             </Modal>}
             <div className="text-center turnNotification">
                 <h5 className="text-center">{messageDisplay}</h5>
+                {!gameState["gameStarted"] && <h5>Code: {gameCode}</h5>}
                 {displayRisk && <div className="d-flex">
                     <Button className="ms-3 me-5" onClick={() => handleRisk()}>Draw Risk Card</Button>
                     <Button onClick={() => setDisplayRisk(false)}>Decline</Button>
@@ -587,7 +597,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     players={players} />
             }
             {
-                displayPieces && displayPieces.length > 0 &&
+                gameState["gameStarted"] && displayPieces && displayPieces.length > 0 &&
                 Object.entries(displayPieces.reduce((acc: Record<string, any[]>, piece: any) => {
                     const boardSpace = piece[Object.keys(piece)[0]].boardSpace;
                     if (!acc[boardSpace]) acc[boardSpace] = [];

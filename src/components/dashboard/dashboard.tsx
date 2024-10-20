@@ -60,6 +60,7 @@ function Dashboard({ loggedInUser }: any) {
                             }
                         }
                         setGameKeys(matches)
+                        setGameFound(false)
                     }
                 })
             } else {
@@ -67,7 +68,7 @@ function Dashboard({ loggedInUser }: any) {
             }
         })
 
-    }, []);
+    }, [gameFound]);
 
     // useEffect(() => {
     //     const didSpinQuery = ref(db, "gameKeys/");
@@ -93,6 +94,7 @@ function Dashboard({ loggedInUser }: any) {
                 }
                 if (matchFound) {
                     setGameFound(true)
+                    setShowSearchGame(false)
                     console.log(loggedInUser)
                     const gameKeyRef = query(ref(db, 'games'), ...[orderByChild("gameId"), equalTo(gameId.value)])
                     const snapshot = await get(gameKeyRef);
