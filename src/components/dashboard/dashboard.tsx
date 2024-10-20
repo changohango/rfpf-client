@@ -328,7 +328,7 @@ function Dashboard({ loggedInUser }: any) {
                     <Form onSubmit={searchForFriend}>
                         <Form.Group className="mb-3" controlId="email">
                             <Form.Label>Friend's Email Address</Form.Label>
-                            <Form.Control type="email" placeholder="Enter email" />
+                            <Form.Control type="email" required placeholder="Enter email" />
                         </Form.Group>
                         <Button variant="primary" type="submit">
                             Submit
@@ -349,7 +349,7 @@ function Dashboard({ loggedInUser }: any) {
                     <Form onSubmit={createNewGame}>
                         <Form.Group className="mb-3" controlId="gameName">
                             <Form.Label>Pick a name for your game:</Form.Label>
-                            <Form.Control type="text" placeholder="Enter game name" />
+                            <Form.Control type="text" placeholder="Enter game name" required />
                         </Form.Group>
                         <hr />
                         <h3>Invite Friends: </h3>
@@ -384,7 +384,7 @@ function Dashboard({ loggedInUser }: any) {
                     <Form onSubmit={searchForGame}>
                         <Form.Group className="mb-3" controlId="gameId">
                             <Form.Label>Game ID</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Game ID" />
+                            <Form.Control required type="text" placeholder="Enter Game ID" />
                         </Form.Group>
                         <Button variant="primary" type="submit">
                             Join
