@@ -4,7 +4,7 @@ import SidePanel from "./sidePanel/sidePanel";
 import Json from "../../assets/json/properties.json"
 import { get, onValue, ref, update } from "firebase/database";
 import { db } from "../../firebase";
-import { Button, Card } from "react-bootstrap";
+import { Button, Card, Modal } from "react-bootstrap";
 
 
 function Game({ selectedGame, loggedInUser }: any) {
@@ -22,34 +22,34 @@ function Game({ selectedGame, loggedInUser }: any) {
             onValue(balanceQuery, (snapshot) => {
                 if (snapshot.exists() && gameState && "turnOrder" in gameState && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid) {
                     if (snapshot.val() < 1) {
-                        var newTurnOrder: any = []
-                        var nextTurn = 0
-                        for (var i = 0; i < Object.keys(gameState.turnOrder).length; i++) {
-                            if (gameState.turnOrder[i] === loggedInUser.uid) {
-                                if (i + 1 >= gameState.turnOrder.length) {
-                                    nextTurn = 0
-                                } else {
-                                    nextTurn = gameState.currentTurn
-                                }
-                            } else {
-                                newTurnOrder.push(gameState.turnOrder[i])
-                            }
-                        }
-                        if (players[loggedInUser.uid].properties) {
-                            console.log(players[loggedInUser.uid].properties)
-                            Object.keys(players[loggedInUser.uid].properties).forEach((key) => {
-                                properties[players[loggedInUser.uid].properties[key]].owner = "None"
-                                properties[players[loggedInUser.uid].properties[key]].upgradeStaus = "None"
-                                properties[players[loggedInUser.uid].properties[key]].rentDue = properties[players[loggedInUser.uid].properties[key]].displayRent
-                            })
-                        }
-                        players[loggedInUser.uid].properties = {}
-                        update(ref(db, "games/" + selectedGame + "/properties"), properties)
-                        update(ref(db, "games/" + selectedGame + "/players"), players)
-                        update(ref(db, "games/" + selectedGame + "/gameState"), { "turnOrder": newTurnOrder, "currentTurn": nextTurn })
-                        update(ref(db, "games/" + selectedGame + "/players/" + loggedInUser.uid), { "isOut": true })
+                        // var newTurnOrder: any = []
+                        // var nextTurn = 0
+                        // for (var i = 0; i < Object.keys(gameState.turnOrder).length; i++) {
+                        //     if (gameState.turnOrder[i] === loggedInUser.uid) {
+                        //         if (i + 1 >= gameState.turnOrder.length) {
+                        //             nextTurn = 0
+                        //         } else {
+                        //             nextTurn = gameState.currentTurn
+                        //         }
+                        //     } else {
+                        //         newTurnOrder.push(gameState.turnOrder[i])
+                        //     }
+                        // }
+                        // if (players[loggedInUser.uid].properties) {
+                        //     console.log(players[loggedInUser.uid].properties)
+                        //     Object.keys(players[loggedInUser.uid].properties).forEach((key) => {
+                        //         properties[players[loggedInUser.uid].properties[key]].owner = "None"
+                        //         properties[players[loggedInUser.uid].properties[key]].upgradeStaus = "None"
+                        //         properties[players[loggedInUser.uid].properties[key]].rentDue = properties[players[loggedInUser.uid].properties[key]].displayRent
+                        //     })
+                        // }
+                        // players[loggedInUser.uid].properties = {}
+                        // update(ref(db, "games/" + selectedGame + "/properties"), properties)
+                        // update(ref(db, "games/" + selectedGame + "/players"), players)
+                        // update(ref(db, "games/" + selectedGame + "/gameState"), { "turnOrder": newTurnOrder, "currentTurn": nextTurn })
+                        // update(ref(db, "games/" + selectedGame + "/players/" + loggedInUser.uid), { "isOut": true })
                     } else {
-                        update(ref(db, "games/" + selectedGame + "/players/" + loggedInUser.uid), { "isOut": false })
+                        // update(ref(db, "games/" + selectedGame + "/players/" + loggedInUser.uid), { "isOut": false })
                     }
                 }
             });
@@ -140,7 +140,7 @@ function Game({ selectedGame, loggedInUser }: any) {
         return (
             <>
                 <Board gameId={selectedGame} currentUser={loggedInUser} properties={properties} playerBalance={playerBalance} gameState={gameState} players={players} didSpin={didSpin} />
-                <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} gameState={gameState} players={players} didSpin={didSpin}/>
+                <SidePanel loggedInUser={loggedInUser} selectedGame={selectedGame} properties={properties} gameState={gameState} players={players} didSpin={didSpin} />
             </>
         )
     } else {

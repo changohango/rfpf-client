@@ -62,7 +62,14 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="mt-1">Plow: {properties[currentModal].plow}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "None" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plow", playerBalance, players, properties)}>Plow</Button>}
+                                {(properties[currentModal].upgradeStatus === "None" &&
+                                    loggedInUser.uid === properties[currentModal].owner &&
+                                    !didUpgrade &&
+                                    !properties[currentModal].justPurchased &&
+                                    gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
+                                    !didSpin &&
+                                    playerBalance > properties[currentModal]["plow"]) &&
+                                    <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plow", playerBalance, players, properties)}>Plow</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -70,12 +77,13 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="">Fertilize: {properties[currentModal].fertilize}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "plow" && 
-                                    loggedInUser.uid === properties[currentModal].owner && 
-                                    !didUpgrade && 
+                                {(properties[currentModal].upgradeStatus === "plow" &&
+                                    loggedInUser.uid === properties[currentModal].owner &&
+                                    !didUpgrade &&
                                     !properties[currentModal].justPurchased &&
-                                     gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
-                                      !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance, players, properties)}>Fertilize</Button>}
+                                    gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
+                                    playerBalance > properties[currentModal]["fertilize"] &&
+                                    !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "fertilize", playerBalance, players, properties)}>Fertilize</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -83,7 +91,14 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="">Plant: {properties[currentModal].plant}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "fertilize" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plant", playerBalance, players, properties)}>Plant</Button>}
+                                {(properties[currentModal].upgradeStatus === "fertilize" &&
+                                    loggedInUser.uid === properties[currentModal].owner &&
+                                    !didUpgrade &&
+                                    !properties[currentModal].justPurchased &&
+                                    gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
+                                    !didSpin &&
+                                    playerBalance > properties[currentModal]["plant"]) &&
+                                    <Button onClick={() => upgradeProperty(selectedGame, currentModal, "plant", playerBalance, players, properties)}>Plant</Button>}
                             </Col>
                         </Row>
                         <Row>
@@ -91,7 +106,14 @@ function PropertyModal({ show, handleClose, properties, currentModal, playerBala
                                 <p className="mb-1">Gather: {properties[currentModal].gather}</p>
                             </Col>
                             <Col>
-                                {(properties[currentModal].upgradeStatus === "plant" && loggedInUser.uid === properties[currentModal].owner && !didUpgrade && !properties[currentModal].justPurchased && gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid && !didSpin) && <Button onClick={() => upgradeProperty(selectedGame, currentModal, "gather", playerBalance, players, properties)}>Gather</Button>}
+                                {(properties[currentModal].upgradeStatus === "plant" &&
+                                    loggedInUser.uid === properties[currentModal].owner &&
+                                    !didUpgrade &&
+                                    !properties[currentModal].justPurchased &&
+                                    gameState["turnOrder"][gameState["currentTurn"]] === loggedInUser.uid &&
+                                    !didSpin &&
+                                    playerBalance > properties[currentModal]["gather"]) &&
+                                    <Button onClick={() => upgradeProperty(selectedGame, currentModal, "gather", playerBalance, players, properties)}>Gather</Button>}
                             </Col>
                         </Row>
                     </Container>

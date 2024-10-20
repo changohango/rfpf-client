@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import './board.css';
-import { Button, Modal, Toast } from "react-bootstrap";
+import { Button, ButtonGroup, Card, Dropdown, Modal, Toast } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
 import { db, getNumProperties, getPassGo, handlePropertyLandedOn, handleTransaction } from "../../firebase";
 import Json from "../../assets/json/properties.json"
@@ -83,6 +83,8 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [lostTurnTracker, setLostTurnTracker] = useState<any>(0);
     const [messageDisplay, setMessageDisplay] = useState<any>(false)
     const [displayRisk, setDisplayRisk] = useState<boolean>(false);
+    const [outstandingBalnce, setOutstandingBalance] = useState<any>(0);
+    const [showSell, setShowSell] = useState<any>(false);
 
     const [play] = useSound(knockSound);
 
@@ -147,6 +149,23 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 setBoardSpace(data);
             }
         })
+
+        const isSellingQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/isSelling");
+        onValue(isSellingQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setShowSell(data);
+            }
+        })
+
+        const amountStillOwedQuery = ref(db, "games/" + gameId + "/players/" + currentUser.uid + "/amountStillOwed");
+        onValue(amountStillOwedQuery, (snapshot) => {
+            const data = snapshot.val();
+            if (snapshot.exists()) {
+                setOutstandingBalance(data);
+            }
+        })
+
 
         const displayPiecesQuery = ref(db, "games/" + gameId + "/players/")
         onValue(displayPiecesQuery, (snapshot) => {
@@ -346,6 +365,91 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         setPlayerToastDetails(name)
     }
 
+    function handleSell(property: any, mode: any, buyer: any) {
+        if (mode === 1) {
+            const upgradeStatus = properties[property].upgradeStatus
+            var newUpgradeStatus = ""
+            var gains = 0
+            switch (upgradeStatus) {
+                case "plow":
+                    newUpgradeStatus = "None"
+                    gains = properties[property]["plow"] / 2
+                    break;
+                case "fertilize":
+                    newUpgradeStatus = "plow"
+                    gains = properties[property]["fertilize"] / 2
+                    break;
+                case "plant":
+                    newUpgradeStatus = "fertilize"
+                    gains = properties[property]["plant"] / 2
+                    break;
+                case "gather":
+                    newUpgradeStatus = "plant"
+                    gains = properties[property]["gather"] / 2
+                    break;
+            }
+            update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + gains, "amountStillOwed": players[currentUser.uid].amountStillOwed - gains })
+            update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus })
+        } else if (mode === 0) {
+            for (const key in players[currentUser.uid].properties) {
+                if (players[currentUser.uid].properties[key] === property) {
+                    delete players[currentUser.uid].properties[key];
+                }
+            }
+            update(ref(db, "games/" + gameId + "/properties/" + property), { "owner": "None" })
+            update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + properties[property].sell, "amountStillOwed": players[currentUser.uid].amountStillOwed - properties[property].sell, "properties": players[currentUser.uid].properties })
+        } else if (mode === 2) {
+            for (const key in players[currentUser.uid].properties) {
+                if (players[currentUser.uid].properties[key] === property) {
+                    delete players[currentUser.uid].properties[key];
+                }
+            }
+            update(ref(db, "games/" + gameId + "/properties/" + property + "/"), {
+                owner: buyer
+            });
+            push(ref(db, "games/" + gameId + "/players/" + buyer + "/properties"), property)
+            const newBal = players[buyer].balance - properties[property].sell
+            set(ref(db, "games/" + gameId + "/players/" + buyer + "/balance"), newBal)
+            setMessage(players[buyer].name + " has purchased " + properties[property].name + " from " + players[currentUser.uid].name +  " for " + properties[property].sell)
+            setBoardState({ ...boardState })
+            update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + properties[property].sell, "amountStillOwed": players[currentUser.uid].amountStillOwed - properties[property].sell, "properties": players[currentUser.uid].properties })
+        }
+    }
+
+    function handleConcede() {
+        setShowSell(false)
+        var newTurnOrder: any = []
+        var nextTurn = 0
+        for (var i = 0; i < Object.keys(gameState.turnOrder).length; i++) {
+            if (gameState.turnOrder[i] === currentUser.uid) {
+                if (i + 1 >= gameState.turnOrder.length) {
+                    nextTurn = 0
+                } else {
+                    nextTurn = gameState.currentTurn
+                }
+            } else {
+                newTurnOrder.push(gameState.turnOrder[i])
+            }
+        }
+        if (players[currentUser.uid].properties) {
+            console.log(players[currentUser.uid].properties)
+            Object.keys(players[currentUser.uid].properties).forEach((key) => {
+                properties[players[currentUser.uid].properties[key]].owner = "None"
+                properties[players[currentUser.uid].properties[key]].upgradeStaus = "None"
+                properties[players[currentUser.uid].properties[key]].rentDue = properties[players[currentUser.uid].properties[key]].displayRent
+            })
+        }
+        players[currentUser.uid].properties = {}
+        update(ref(db, "games/" + gameId + "/properties"), properties)
+        update(ref(db, "games/" + gameId + "/gameState"), { "turnOrder": newTurnOrder, "currentTurn": nextTurn })
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isOut": true })
+    }
+
+    function handleContinue() {
+        setShowSell(false)
+        update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isSelling": false, "amountStillOwed": 0 })
+    }
+
     if (properties && gameState && players) return (
         <>
             {boardSpaces.map((boardSpace: BoardSpace) => (
@@ -379,15 +483,69 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     {spinnerResult === 9 && <p>LINE!! Spin again</p>}
                 </div>
             </div>
-            {
-                <div className="text-center turnNotification">
-                    <h5 className="text-center">{messageDisplay}</h5>
-                    {displayRisk && <div className="d-flex">
-                        <Button className="ms-3 me-5" onClick={() => handleRisk()}>Draw Risk Card</Button>
-                        <Button onClick={() => setDisplayRisk(false)}>Decline</Button>
-                    </div>}
-                </div>
-            }
+
+            {showSell && <Modal show={showSell} backdrop="static">
+                <Modal.Header>
+                    <Modal.Title>Sell Properties</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>You are facing elimination! Sell upgrades and properties until you have enough to pay. If you can't, you have to concede.</p>
+                    {outstandingBalnce > 0 ? <strong style={{ color: "red" }}>Amount still owed: {players[currentUser.uid].amountStillOwed} </strong> : <strong style={{ color: "green" }}>No outstanding balance!</strong>}
+                    <hr />
+                    {players[currentUser.uid].properties ? Object.values(players[currentUser.uid].properties).map((ownedProperty: any) => (
+                        <div>
+                            <Card>
+                                <Card.Title className="text-center">
+                                    <ButtonGroup key={properties[ownedProperty].name} onClick={() => handleShow(ownedProperty)}>
+                                        {properties[ownedProperty].upgradeStatus !== "None" && <Button className="mt-3 me-2 propertyButton upgrade border-0" style={{ background: getUpgradeColor(properties[ownedProperty].upgradeStatus) }}></Button>}
+                                        <Button
+                                            className="mt-3 propertyButton"
+                                            key={ownedProperty}
+                                            style={
+                                                {
+                                                    background: properties[ownedProperty].color,
+                                                    borderWidth: "0",
+                                                    color: "#000000", fontSize: 12
+                                                }
+                                            }
+                                        >
+                                            <img className="me-1 sidePanelIcon" src={images(`./${ownedProperty}.png`)} alt={ownedProperty} />
+                                            <b>{properties[ownedProperty].name.toUpperCase()}</b>
+                                        </Button>
+                                    </ButtonGroup>
+                                </Card.Title>
+                                <Card.Body className="text-center">
+                                    {properties[ownedProperty].upgradeStatus !== "None" ?
+                                        <Button onClick={() => handleSell(ownedProperty, 1, null)} className="mt-1">Sell Upgrade to Bank for {properties[ownedProperty][properties[ownedProperty].upgradeStatus] / 2}</Button> :
+                                        <div>
+                                            <Button onClick={() => handleSell(ownedProperty, 0, null)} className="mt-1">Sell Property to Bank for {properties[ownedProperty].sell}</Button>
+                                            <Dropdown className="mt-2">
+                                                <Dropdown.Toggle>Sell Property to Player</Dropdown.Toggle>
+                                                <Dropdown.Menu>
+                                                    {players && Object.values(players).map((player: any, i: any) => (
+                                                        Object.keys(players)[i] !== currentUser.uid && player.balance > properties[ownedProperty].sell && <Dropdown.Item onClick={() => handleSell(ownedProperty, 2, Object.keys(players)[i])}>{player.name}</Dropdown.Item>
+                                                    ))}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
+                                    }
+                                </Card.Body>
+                            </Card>
+                        </div>
+                    )) : <p>No properties owned :(</p>}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={() => handleConcede()}>Concede</Button>
+                    <Button disabled={outstandingBalnce > 0} onClick={() => handleContinue()}>Continue</Button>
+                </Modal.Footer>
+            </Modal>}
+            <div className="text-center turnNotification">
+                <h5 className="text-center">{messageDisplay}</h5>
+                {displayRisk && <div className="d-flex">
+                    <Button className="ms-3 me-5" onClick={() => handleRisk()}>Draw Risk Card</Button>
+                    <Button onClick={() => setDisplayRisk(false)}>Decline</Button>
+                </div>}
+            </div>
             <div id="startGame">
                 {(!gameState["gameStarted"] && gameState["gameOwner"] === currentUser.uid) && <Button onClick={() => startGame()}>Start Game!</Button>}
                 {(gameState["gameStarted"] && gameState["turnOrder"][gameState["currentTurn"]] === currentUser.uid && didSpin) && <Button onClick={() => endTurn()}>End Turn</Button>}
@@ -456,8 +614,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     ))
                 ))
             }
-
-
         </>
     )
 

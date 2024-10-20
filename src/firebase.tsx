@@ -34,7 +34,12 @@ export function handleTransaction(selectedGame: any, uid: any, amount: any, mode
           console.log(uid + " losing " + amount)
           break;
       }
-      update(ref(db, "games/" + selectedGame + "/players/" + uid), { "balance": newBal })
+      if (newBal < 1) {
+        //start sell logic
+        update(ref(db, "games/" + selectedGame + "/players/" + uid), { "balance": newBal, "isSelling": true, "amountStillOwed": Math.abs(newBal)})
+      } else {
+        update(ref(db, "games/" + selectedGame + "/players/" + uid), { "balance": newBal })
+      }
     }
   })
 }

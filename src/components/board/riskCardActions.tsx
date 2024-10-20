@@ -250,9 +250,13 @@ export function getRiskCardActions(cardNumber: any, selectedGame: any, uid: any,
                 getPassGo(uid, selectedGame, players, setMessage)
             }
             if (properties["jacobs"].owner !== "None" && properties["jacobs"].owner !== uid) {
-                handleTransaction(selectedGame, uid, properties["jacobs"].rentDue * 2, 1)
-                handleTransaction(selectedGame, properties["jacobs"].owner, properties["jacobs"].rentDue * 2, 0)
-                setMessage(players[uid].name + " moved to " + properties["jacobs"].name + " (DOUBLE RENT), paying " + players[properties["jacobs"].owner].name + " $" + properties["jacobs"].rentDue * 2)
+                if (players[properties["jacobs"].owner].isNoRentDue) {
+                    setMessage(players[uid].name + " moved to " + properties["jacobs"].name + " (DOUBLE RENT), but " + players[properties["jacobs"].owner].name + " has no rent due!" )
+                } else {
+                    handleTransaction(selectedGame, uid, properties["jacobs"].rentDue * 2, 1)
+                    handleTransaction(selectedGame, properties["jacobs"].owner, properties["jacobs"].rentDue * 2, 0)
+                    setMessage(players[uid].name + " moved to " + properties["jacobs"].name + " (DOUBLE RENT), paying " + players[properties["jacobs"].owner].name + " $" + properties["jacobs"].rentDue * 2)
+                }
             } else if (properties["jacobs"].owner === uid) {
                 setMessage(players[uid].name + " moved to " + properties["jacobs"].name + ", they already own this property.")
             } else {

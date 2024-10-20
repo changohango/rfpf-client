@@ -108,6 +108,8 @@ function Dashboard({ loggedInUser }: any) {
                         isOut: false,
                         isNextTurnLost: false,
                         isNoRentDue: false,
+                        isSelling: false,
+                        amountStillOwed: 0,
                     }
                     update(ref(db, "games/" + gameKey + "/players"), includeLoggedInUser)
                 } else {
@@ -162,6 +164,8 @@ function Dashboard({ loggedInUser }: any) {
             isOut: false,
             isNextTurnLost: false,
             isNoRentDue: false,
+            isSelling: false,
+            amountStillOwed: 0,
         }
 
         var gameRandId: any = "";
@@ -185,6 +189,8 @@ function Dashboard({ loggedInUser }: any) {
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].isOut = false;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].isNextTurnLost = false;
                 invitedFriends[i][Object.keys(invitedFriends[i])[0]].isNoRentDue = false;
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].isSelling = false;
+                invitedFriends[i][Object.keys(invitedFriends[i])[0]].amountStillOwed = 0;
                 delete invitedFriends[i][Object.keys(invitedFriends[i])[0]].friends;
                 update(ref(db, "games/" + gameName.value + "/players"), invitedFriends[i])
             }
