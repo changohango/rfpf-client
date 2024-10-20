@@ -131,7 +131,7 @@ function Game({ selectedGame, loggedInUser }: any) {
         return (
             <>
                 <h1 className="mt-3">Game over! Thanks for playing! Winner: {players[gameState["turnOrder"][0]].name}</h1>
-                <Button className="mt-3" onClick={() => setViewStats(true)}>View stats?</Button>
+                {/* <Button className="mt-3" onClick={() => setViewStats(true)}>View stats?</Button> */}
             </>
         )
     }

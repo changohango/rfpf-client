@@ -39,6 +39,28 @@ export function handleTransaction(selectedGame: any, uid: any, amount: any, mode
   })
 }
 
+export function handlePropertyLandedOn(gameId: any, properties: any, uid: any, players: any, setMessage: any, match: any) {
+  if (properties[match].owner !== uid && properties[match].owner !== "None") {
+    if (players[properties[match].owner].isNoRentDue) {
+      console.log("no rent due!")
+      setMessage(players[properties[match].owner].name + " has no rent due!")
+    } else {
+      console.log(uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
+      handleTransaction(gameId, uid, properties[match].rentDue, 1)
+      handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
+      setMessage(players[uid].name + " landed on: " + properties[match].name + " - " + players[uid].name + " paying " + players[properties[match].owner].name + " $" + properties[match].rentDue)
+      return (players[uid].name + " landed on: " + properties[match].name + " - " + players[uid].name + " paying " + players[properties[match].owner].name + " $" + properties[match].rentDue)
+    }
+  } else if (properties[match].owner === "None") {
+    console.log("Property available for purchase");
+    setMessage(properties[match].name + " available for purchase!")
+    return (properties[match].name + " available for purchase!")
+  } else if (properties[match].owner === uid) {
+    setMessage(players[uid].name + " landed on: " + properties[match].name + " - own property.")
+    return (players[uid].name + " landed on: " + properties[match].name + " - own property.")
+  }
+}
+
 export function getNumProperties(selectedGame: any, uid: any) {
   var numProperties = 0;
   get(ref(db, "games/" + selectedGame + "/players/" + uid + "/properties")).then((snapshot) => {
@@ -69,6 +91,16 @@ export function upgradeProperty(selectedGame: any, property: any, upgradeStatus:
       update(ref(db, "games/" + selectedGame + "/gameState"), { "message": message })
     }
   })
+}
+
+export function getPassGo(uid: any, gameId: any, players: any, setMessage: any) {
+  if (players[uid].properties) {
+    setMessage("Passing go! Recieve $50 for every farm owned (" + Object.keys(players[uid].properties).length + ")")
+    console.log("Passing go! Recieve $50 for every farm owned (" + Object.keys(players[uid].properties).length + ")")
+    handleTransaction(gameId, uid, Object.keys(players[uid].properties).length * 50, 0)
+  } else {
+    setMessage("Passing go! No properties owned.")
+  }
 }
 
 const app = initializeApp(firebaseConfig);

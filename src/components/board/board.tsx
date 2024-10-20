@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import './board.css';
 import { Button, Modal, Toast } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
-import { db, getNumProperties, handleTransaction } from "../../firebase";
+import { db, getNumProperties, getPassGo, handlePropertyLandedOn, handleTransaction } from "../../firebase";
 import Json from "../../assets/json/properties.json"
 import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
 import classNames from "classnames";
@@ -11,7 +11,8 @@ import { boardActions } from "./boardActions";
 import { getUpgradeColor } from "../game/sidePanel/sidePanel";
 import useSound from "use-sound";
 import knockSound from '../../assets/sounds/knock.mp3'
-import { getMessage } from "./messages";
+import { getMessage } from "./boardActions";
+import { getRiskCardActions } from "./riskCardActions";
 
 const boardArt = require.context('../../assets/artwork', true);
 const images = require.context('../../assets/icons', true);
@@ -78,7 +79,10 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isNoRentDue, setIsNoRentDue] = useState<any>(false)
     const [isNextTurnLost, setIsNextTurnLost] = useState<any>(false);
-    const [messageDisplay, setMessageDisplay] = useState<any>("")
+    const [doubleTurnLost, setDoubleTurnLost] = useState<any>(false);
+    const [lostTurnTracker, setLostTurnTracker] = useState<any>(0);
+    const [messageDisplay, setMessageDisplay] = useState<any>(false)
+    const [displayRisk, setDisplayRisk] = useState<boolean>(false);
 
     const [play] = useSound(knockSound);
 
@@ -173,8 +177,12 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 } else {
                     update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": gameState["currentTurn"] + 1 })
                 }
-                update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isNextTurnLost": false })
-                setIsNextTurnLost(false)
+                if (doubleTurnLost && !lostTurnTracker) {
+                    setLostTurnTracker(true)
+                } else {
+                    setIsNextTurnLost(false)
+                    update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "isNextTurnLost": false })
+                }
             }
         }
     }, [gameState])
@@ -218,14 +226,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                         var newBoardSpace = 0
                         if (snapshot.val() + result > 31) {
                             newBoardSpace = (snapshot.val() + result) % 32
-                            if (players[currentUser.uid].properties) {
-                                console.log("passed start,  " + Object.keys(players[currentUser.uid].properties).length + " properties owned")
-                                setMessage("Passing go! Recieve $50 for every farm owned (" + Object.keys(players[currentUser.uid].properties).length + ")")
-                                handleTransaction(gameId, currentUser.uid, Object.keys(players[currentUser.uid].properties).length * 50, 0)
-                            } else {
-                                console.log("passed go, no properties owned")
-                                setMessage("Passing go! No properties owned.")
-                            }
+                            getPassGo(currentUser.uid, gameId, players, setMessage)
                         } else {
                             newBoardSpace = snapshot.val() + result;
                         }
@@ -237,22 +238,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                             }
                         }
                         if (match !== "") {
-                            if (properties[match].owner !== currentUser.uid && properties[match].owner !== "None") {
-                                if (players[properties[match].owner].isNoRentDue) {
-                                    console.log("no rent due!")
-                                    setMessage(players[properties[match].owner].name + " has no rent due!")
-                                } else {
-                                    console.log(currentUser.uid + " paying " + properties[match].owner + " " + properties[match].rentDue)
-                                    handleTransaction(gameId, currentUser.uid, properties[match].rentDue, 1)
-                                    handleTransaction(gameId, properties[match].owner, properties[match].rentDue, 0)
-                                    setMessage(players[currentUser.uid].name + " landed on: " + properties[match].name + " - " + players[currentUser.uid].name + " paying " + players[properties[match].owner].name + " $" + properties[match].rentDue)
-                                }
-                            } else if (properties[match].owner === "None") {
-                                console.log("Property available for purchase");
-                                setMessage(properties[match].name + " available for purchase!")
-                            } else if (properties[match].owner === currentUser.uid) {
-                                setMessage(players[currentUser.uid].name + " landed on: " + properties[match].name + " - own property.")
-                            }
+                            handlePropertyLandedOn(gameId, properties, currentUser.uid, players, setMessage, match)
                         } else {
                             switch (newBoardSpace) {
                                 case 3:
@@ -261,10 +247,11 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                                 case 23:
                                 case 28:
                                     play()
+                                    setDisplayRisk(true)
                                     break;
                             }
                             const boardAction = boardActions(gameId, currentUser.uid, newBoardSpace, players)
-                            setMessage(getMessage(gameId, currentUser.uid, newBoardSpace, players))
+                            setMessage(getMessage(currentUser.uid, newBoardSpace, players))
                             if (boardAction === "noRentDue") {
                                 setIsNoRentDue(true)
                             }
@@ -281,6 +268,19 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         }
     }
 
+    function handleRisk() {
+        setDisplayRisk(false)
+        if (!gameState['riskOrder']) {
+            const riskOrder = Array.from({ length: 40 }, (_, index) => index);
+            gameState['riskOrder'] = riskOrder
+        }
+        console.log(gameState['riskOrder'])
+        const randomInt = Math.floor(Math.random() * gameState['riskOrder'].length - 1);
+        const cardNum = gameState['riskOrder'].splice(randomInt, 1)
+        update(ref(db, "games/" + gameId + "/gameState"), { "riskOrder": gameState['riskOrder'] })
+        getRiskCardActions(cardNum[0], gameId, currentUser.uid, players, setMessage, properties, setIsNoRentDue, setIsNextTurnLost, setDoubleTurnLost)
+    }
+
     function endTurn() {
         if (gameState["currentTurn"] + 1 > Object.keys(gameState.turnOrder).length - 1) {
             update(ref(db, "games/" + gameId + "/gameState"), { "currentTurn": 0 })
@@ -290,6 +290,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
         if (purchasedProperty) {
             update(ref(db, "games/" + gameId + "/properties/" + purchasedProperty), { "justPurchased": false })
         }
+        update(ref(db, "games/" + gameId + "/properties/jacobs"), { "price": 4370 })
         update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "didUpgrade": false, "didSpin": false, "isNoRentDue": isNoRentDue, "isNextTurnLost": isNextTurnLost })
     }
 
@@ -318,6 +319,10 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
             [shuffle[currentIndex], shuffle[randomIndex]] = [
                 shuffle[randomIndex], shuffle[currentIndex]];
         }
+
+        //Initiate Risk Cards
+        const riskOrder = Array.from({ length: 40 }, (_, index) => index);
+        update(ref(db, "games/" + gameId + "/gameState"), { "riskOrder": riskOrder })
 
         const turnOrder: any = {}
         for (var i in shuffle.length) {
@@ -375,8 +380,12 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 </div>
             </div>
             {
-                <div className="text-center" id="turnNotification">
-                    <h3 className="text-center">{messageDisplay}</h3>
+                <div className="text-center turnNotification">
+                    <h5 className="text-center">{messageDisplay}</h5>
+                    {displayRisk && <div className="d-flex">
+                        <Button className="ms-3 me-5" onClick={() => handleRisk()}>Draw Risk Card</Button>
+                        <Button onClick={() => setDisplayRisk(false)}>Decline</Button>
+                    </div>}
                 </div>
             }
             <div id="startGame">
@@ -392,8 +401,6 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                 <Toast.Header closeButton={false} style={{
                     background: properties[toastDetails].color
                 }}>
-
-                    <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
                     <strong className="me-auto">{properties[toastDetails].name}</strong>
                 </Toast.Header>
                 <Toast.Body>{properties[toastDetails].owner !== "None" ? "Owned By: " + players[properties[toastDetails].owner].name : "Not Owned"} {properties[toastDetails].upgradeStatus !== "None" && "// Upgrade Status: " + properties[toastDetails].upgradeStatus} </Toast.Body>

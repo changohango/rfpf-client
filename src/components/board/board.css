@@ -490,10 +490,10 @@
   left: 550px;
 }
 
-#turnNotification {
+.turnNotification {
   position: absolute;
-  top: 250px;
-  left: 360px;
+  top: 200px;
+  left: 340px;
   width: 300px;
 }
 
