@@ -57,7 +57,7 @@ function Login() {
 
     return (
         <>
-            <h1 className="text-center my-3 title">Rich Farmer Poor Farmer</h1>
+            <h1 className="text-center my-3 title">Rich Farmer Poor Farmer v1.0.3</h1>
             <p className='text-center my-3'>Please login to access the game!</p>
             <div className='text-center'>
                 <Button className='mx-3' onClick={handleShowLogin}>Login</Button>

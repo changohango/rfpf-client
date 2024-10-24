@@ -274,6 +274,7 @@ export function getRiskCardActions(cardNumber: any, selectedGame: any, uid: any,
             console.log("Next turn being lost")
             setIsNextTurnLost(true)
             update(ref(db, "games/" + selectedGame + "/players/" + uid), { "boardSpace": 20 })
+            setMessage(players[uid].name + " moves to family reunion and loses a turn.")
             break;
         case 36:
             setIsNoRentDue(true)
