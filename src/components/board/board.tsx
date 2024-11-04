@@ -398,14 +398,18 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     break;
             }
             update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + gains, "amountStillOwed": players[currentUser.uid].amountStillOwed - gains })
-            update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus, "rentDue": properties[property].displayRent })
+            if (newUpgradeStatus !== "None") {
+                update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus, "rentDue": properties[properties[property].newUpgradeStatus] })
+            } else {
+                update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus, "rentDue": properties[properties[property].newUpgradeStatus] })
+            }
         } else if (mode === 0) {
             for (const key in players[currentUser.uid].properties) {
                 if (players[currentUser.uid].properties[key] === property) {
                     delete players[currentUser.uid].properties[key];
                 }
             }
-            update(ref(db, "games/" + gameId + "/properties/" + property), { "owner": "None" })
+            update(ref(db, "games/" + gameId + "/properties/" + property), { "owner": "None", "rentDue": properties[property].displayRent })
             update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + properties[property].sell, "amountStillOwed": players[currentUser.uid].amountStillOwed - properties[property].sell, "properties": players[currentUser.uid].properties })
         } else if (mode === 2) {
             for (const key in players[currentUser.uid].properties) {
