@@ -398,7 +398,7 @@ function Board({ gameId, currentUser, properties, playerBalance, gameState, play
                     break;
             }
             update(ref(db, "games/" + gameId + "/players/" + currentUser.uid), { "balance": players[currentUser.uid].balance + gains, "amountStillOwed": players[currentUser.uid].amountStillOwed - gains })
-            update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus })
+            update(ref(db, "games/" + gameId + "/properties/" + property), { "upgradeStatus": newUpgradeStatus, "rentDue": properties[property].displayRent })
         } else if (mode === 0) {
             for (const key in players[currentUser.uid].properties) {
                 if (players[currentUser.uid].properties[key] === property) {
