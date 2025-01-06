@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import './board.css';
 import { Button, ButtonGroup, Card, Dropdown, Modal, Toast } from "react-bootstrap";
 import { Property } from "../dashboard/dashboard";
-import { db, getNumProperties, getPassGo, handlePropertyLandedOn, handleTransaction } from "../../firebase";
+import { db, getPassGo, handlePropertyLandedOn } from "../../firebase";
 import Json from "../../assets/json/properties.json"
-import { equalTo, get, onValue, orderByChild, push, query, ref, set, update } from "firebase/database";
+import { get, onValue, push, ref, set, update } from "firebase/database";
 import classNames from "classnames";
 import PropertyModal from "./propertyModal";
 import { boardActions } from "./boardActions";
